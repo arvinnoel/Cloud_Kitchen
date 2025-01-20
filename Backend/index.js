@@ -21,7 +21,20 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+const allowedOrigins = [
+  'https://cloud-kitchen-backend-qzyk.onrender.com', 
+  'http://localhost:5173', 
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS Error:', origin); // Log the origin causing issues
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 // Routes
 app.use('/user', signupRouter);
 app.use('/owner', OwnersignupRouter);
