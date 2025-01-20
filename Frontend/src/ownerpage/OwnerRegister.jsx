@@ -1,9 +1,7 @@
 import React, { useState }from 'react'
 import { Link,Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import {Navigate} from 'react-router-dom';
 import axios from 'axios';
-import Owner from "./OwnerNavbar";
 const OwnerRegister = () => {
   const [name, setName] = useState('');
   const [kitchen_name, setKitchenname] = useState('');
@@ -11,7 +9,8 @@ const OwnerRegister = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -23,7 +22,7 @@ const OwnerRegister = () => {
     try {
       const ownerData = { name, kitchen_name, email, password, confirmPassword };
 
-      const response = await axios.post('http://localhost:5000/owner/ownerregister', ownerData);
+      const response = await axios.post(`${apiUrl}/owner/ownerregister`, ownerData);
 
       console.log(response.data); 
       alert('Registered successfully');

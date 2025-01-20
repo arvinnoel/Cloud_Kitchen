@@ -8,13 +8,14 @@ const AddItem = () => {
     description: '',
     imageFile: null,
   });
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setProduct({ ...product, imageFile: files[0] }); // Handle file input
+      setProduct({ ...product, imageFile: files[0] }); 
     } else {
-      setProduct({ ...product, [name]: value }); // Handle text inputs
+      setProduct({ ...product, [name]: value }); 
     }
   };
 
@@ -33,7 +34,7 @@ const AddItem = () => {
         return;
       }
   
-      const response = await axios.post("http://localhost:5000/owner/addproducts", formData, {
+      const response = await axios.post(`${apiUrl}/owner/addproducts`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

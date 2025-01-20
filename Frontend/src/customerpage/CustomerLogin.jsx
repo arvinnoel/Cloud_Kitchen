@@ -1,20 +1,19 @@
 import React, { useState }from 'react'
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import {Navigate} from 'react-router-dom';
 import axios from 'axios';
-import Customer from "./CustomerNavbar";
 const Login = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const userData = { email, password};
 
-      const response = await axios.post('http://localhost:5000/user/login', userData);
+      const response = await axios.post(`${apiUrl}/user/login`, userData);
       
       // Extract the token from the response
       const token = response.data.data.token;

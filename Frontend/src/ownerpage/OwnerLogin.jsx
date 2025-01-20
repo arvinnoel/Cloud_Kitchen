@@ -6,14 +6,15 @@ const OwnerLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const ownerData = { email, password };
   
       // Send login request
-      const response = await axios.post('http://localhost:5000/owner/ownerlogin', ownerData);
+      const response = await axios.post(`${apiUrl}/owner/ownerlogin`, ownerData);
   
       // Extract the token from the response
       const token = response.data.data.token;

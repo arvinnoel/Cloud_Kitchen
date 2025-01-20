@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
 const MyKitchen = () => {
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [kitchenName, setKitchenName] = useState('');
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     useEffect(() => {
       let isMounted = true; // To handle component unmount
   
@@ -17,7 +17,7 @@ const MyKitchen = () => {
             throw new Error(' Please log in to see your kitchen.');
           }
   
-          const response = await axios.get('http://localhost:5000/owner/getownerproducts', {
+          const response = await axios.get(`${apiUrl}/owner/getownerproducts`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -32,9 +32,8 @@ const MyKitchen = () => {
           if (isMounted) {
             if (error.response?.status === 401) {
               setError('Unauthorized access. Please log in again.');
-              localStorage.removeItem('authToken'); // Clear invalid token
-              // Optionally, redirect to the login page
-              window.location.href = '/login'; // Uncomment if redirection is required
+              localStorage.removeItem('authToken'); 
+              window.location.href = '/login'; 
             } else {
               setError('Just login or add item');
             }
@@ -48,8 +47,6 @@ const MyKitchen = () => {
       };
   
       fetchProducts();
-  
-      // Cleanup function to handle component unmount
       return () => {
         isMounted = false;
       };
@@ -70,7 +67,7 @@ const MyKitchen = () => {
               className="bg-white p-4 shadow-md rounded-md border border-gray-200"
             >
               <img
-          src={`http://localhost:5000${product.imageFile}`} // Prepend the base URL
+          src={`${apiUrl}${product.imageFile}`}
           alt={product.name}
           className="w-full h-48 object-cover rounded-md"
         />

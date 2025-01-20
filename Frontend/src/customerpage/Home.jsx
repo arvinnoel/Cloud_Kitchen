@@ -5,8 +5,7 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [cart, setCart] = useState([]);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -16,7 +15,7 @@ const Home = () => {
           throw new Error('Please log in.');
         }
 
-        const response = await axios.get('http://localhost:5000/user/getallproducts', {
+        const response = await axios.get(`${apiUrl}/user/getallproducts`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -40,38 +39,6 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  // const addToCart = async (product) => {
-  //   const token = localStorage.getItem('userauthToken');
-    
-  //   if (!token) {
-  //     alert('You need to log in to add items to your cart.');
-  //     window.location.href = '/login';
-  //     return;
-  //   }
-    
-  //   try {
-  //     const response = await axios.post(
-  //       'http://localhost:5000/api/addtocart',
-  //       {
-  //         productId: product._id,
-  //         quantity: 1, // Default quantity
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-    
-  //     // Handle successful addition
-  //     alert('Product added to cart');
-  //   } catch (error) {
-  //     console.error('Error adding product to cart:', error.response || error.message);
-  //     alert('Failed to add product to cart');
-  //   }
-  // };
-  
-
   return (
     <div>
       <h1 className="text-center text-2xl font-bold mb-6">Home</h1>
@@ -86,7 +53,7 @@ const Home = () => {
             className="bg-white p-4 shadow-md rounded-md border border-gray-200"
           >
             <img
-              src={`http://localhost:5000${product.imageFile}`} // Prepend the base URL
+              src={`${apiUrl}${product.imageFile}`} // Prepend the base URL
               alt={product.name}
               className="w-full h-48 object-cover rounded-md"
             />

@@ -9,12 +9,13 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const userData = { email, password};
 
-      const response = await axios.post('http://localhost:5000/api/adminlogin', userData);
+      const response = await axios.post(`${apiUrl}/api/adminlogin`, userData);
       
       console.log(response); 
       alert('Logged in successfully');

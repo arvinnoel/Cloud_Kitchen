@@ -1,7 +1,6 @@
 import React, { useState }from 'react'
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import {Navigate} from 'react-router-dom';
 import axios from 'axios';
 
 const Register = () => {
@@ -10,6 +9,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -23,7 +23,7 @@ const Register = () => {
     try {
       const userData = { firstName, lastName, email, password, confirmPassword };
 
-      const response = await axios.post('http://localhost:5000/user/register', userData);
+      const response = await axios.post(`${apiUrl}/user/register`, userData);
 
       console.log(response.data); 
       alert('Registered successfully');
