@@ -8,8 +8,9 @@ const AddItem = () => {
     description: '',
     imageFile: null,
   });
+  
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
+  
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {

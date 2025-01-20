@@ -13,7 +13,7 @@ const productRouter = require('./routes/owner_additem_routes');
 const authenticateOwner = require('./middleware/authMiddleware');
 const userAuthMiddleware = require('./middleware/userAuthMiddleware');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 RunServer();
 app.use(cors());
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const allowedOrigins = [
-  'https://cloud-kitchen-backend-qzyk.onrender.com', 
+  'https://cloud-kitchen-4a71.onrender.com', 
   'http://localhost:5173', 
 ];
 app.use(cors({
