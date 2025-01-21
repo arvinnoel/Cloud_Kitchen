@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Product Schema
 const ProductSchema = new mongoose.Schema(
   {
     name: String,
@@ -8,10 +7,9 @@ const ProductSchema = new mongoose.Schema(
     description: String,
     imageFile: String,
   },
-  { timestamps: true } // Add timestamps for products
+  { timestamps: true } 
 );
 
-// Define the Order Schema
 const OrderSchema = new mongoose.Schema(
   {
     orderId: String,
@@ -20,10 +18,9 @@ const OrderSchema = new mongoose.Schema(
     orderDate: Date,
     status: String,
   },
-  { timestamps: true } // Add timestamps for orders
+  { timestamps: true } 
 );
 
-// Define the Owner Schema
 const OwnerSchema = new mongoose.Schema(
   {
     name: {
@@ -45,11 +42,10 @@ const OwnerSchema = new mongoose.Schema(
       minlength: 8,
     },
 
-    // Embed the Product and Order Schemas
-    products: [ProductSchema], // This will use the ProductSchema with timestamps
-    orders: [OrderSchema], // This will use the OrderSchema with timestamps
+    products: [ProductSchema], 
+    orders: [OrderSchema],
   },
-  { timestamps: true } // Add timestamps for the Owner document itself
+  { timestamps: true }
 );
 
 const Owner = mongoose.model('Owner', OwnerSchema);

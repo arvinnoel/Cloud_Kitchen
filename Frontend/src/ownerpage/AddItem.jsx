@@ -10,62 +10,66 @@ const AddItem = () => {
     description: '',
     imageFile: null,
   });
-  
+  const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-  
+
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setProduct({ ...product, imageFile: files[0] }); 
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files are allowed');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size should not exceed 5MB');
+        return;
+      }
+      setProduct({ ...product, imageFile: file });
     } else {
-      setProduct({ ...product, [name]: value }); 
+      setProduct({ ...product, [name]: value });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("price", product.price);
-    formData.append("description", product.description);
-    formData.append("imageFile", product.imageFile);
-  
+    formData.append('name', product.name);
+    formData.append('price', product.price);
+    formData.append('description', product.description);
+    formData.append('imageFile', product.imageFile);
+
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem('authToken');
       if (!token) {
-        toast.error("You must be logged in to add a product.");
+        toast.error('You must be logged in to add a product.');
         return;
       }
-  
+
       const response = await axios.post(`${apiUrl}/owner/addproducts`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      toast.success("Product added successfully");
-      console.log(response.data);
-  
-      // Reset the form fields
-      setProduct({
-        name: '',
-        price: '',
-        description: '',
-        imageFile: null,
-      });
+
+      toast.success('Product added successfully');
+      setProduct({ name: '', price: '', description: '', imageFile: null });
+      e.target.reset();
     } catch (error) {
-      toast.error("Error adding product:", error.response || error);
-      toast.error(error.response?.data?.message || "An unexpected error occurred.");
+      toast.error(`Error adding product: ${error.response?.data?.message || 'An unexpected error occurred.'}`);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-lg">
         <h1 className="text-2xl font-bold mb-6 text-center">Add Product</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Product Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Product Name</label>
             <input
@@ -78,8 +82,6 @@ const AddItem = () => {
               required
             />
           </div>
-
-          {/* Product Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Price</label>
             <input
@@ -92,20 +94,25 @@ const AddItem = () => {
               required
             />
           </div>
-
-          {/* Product Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Product Image</label>
             <input
               type="file"
-              name="image"
+              name="imageFile"
               onChange={handleChange}
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               required
             />
+            {product.imageFile && (
+              <div className="mt-4">
+                <img
+                  src={URL.createObjectURL(product.imageFile)}
+                  alt="Preview"
+                  className="w-48 h-48 object-cover rounded-md"
+                />
+              </div>
+            )}
           </div>
-
-          {/* Product Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
@@ -118,14 +125,13 @@ const AddItem = () => {
               required
             ></textarea>
           </div>
-
-          {/* Add Item Button */}
           <div className="text-center">
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={loading}
+              className={`w-full py-2 px-4 ${loading ? 'bg-gray-400' : 'bg-blue-600'} text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
             >
-              Add Item
+              {loading ? 'Adding...' : 'Add Item'}
             </button>
           </div>
         </form>

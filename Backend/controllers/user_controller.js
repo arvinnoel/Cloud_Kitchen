@@ -74,40 +74,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-const getUserTasks = async (req, res) => {
-  const { email } = req.query;
-
-  try {
-    const user = await User.findOne({ email }, { tasks: 1 });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(user.tasks);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-const updateUserTasks = async (req, res) => {
-  const { email, tasks } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.tasks = { ...user.tasks, ...tasks };
-    await user.save();
-
-    res.status(200).json({ message: "Tasks updated successfully", tasks: user.tasks });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
 const addItemToCart = async (req, res) => {
   const { productId, quantity } = req.body;
   const token = req.headers.authorization?.split(" ")[1]; // Extract token from header
@@ -162,7 +128,7 @@ const addItemToCart = async (req, res) => {
 
 const removeItemFromCart = async (req, res) => {
   const { productId } = req.body;
-  const token = req.headers.authorization?.split(" ")[1]; // Extract token from header
+  const token = req.headers.authorization?.split(" ")[1]; 
 
   if (!token) {
     return res.status(401).json({ message: "Authorization token is required" });
@@ -186,12 +152,9 @@ const removeItemFromCart = async (req, res) => {
   }
 };
 
-
 module.exports = {
   registerUser,
   loginUser,
-  updateUserTasks,
-  getUserTasks,
   removeItemFromCart,
   addItemToCart
 };

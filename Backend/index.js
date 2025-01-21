@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const multer = require('multer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
@@ -33,24 +32,24 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.error('CORS Error: Blocked origin', origin); // Log the origin causing issues
+      console.error('CORS Error: Blocked origin', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
 }));
 
 // Routes
-app.use('/user', signupRouter); // User signup and related routes
-app.use('/owner', OwnersignupRouter); // Owner signup and related routes
-app.use('/admin', AdminRouter); // Admin routes
+app.use('/user', signupRouter); 
+app.use('/owner', OwnersignupRouter); 
+app.use('/admin', AdminRouter); 
 
 // Authenticated Routes
-app.use('/owner', authenticateOwner, productRouter); // Owner product routes
-app.use('/user', userAuthMiddleware, productRouter); // User product-related routes
+app.use('/owner', authenticateOwner, productRouter); 
+app.use('/user', userAuthMiddleware, productRouter); 
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error(`Error: ${err.message}`);
   res.status(err.status || 500).json({
     error: {
       message: err.message || 'Internal Server Error',
@@ -60,5 +59,5 @@ app.use((err, req, res, next) => {
 
 // Start Server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
