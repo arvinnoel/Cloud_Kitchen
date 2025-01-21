@@ -1,46 +1,47 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const OwnerLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const ownerData = { email, password };
-  
+
       // Send login request
       const response = await axios.post(`${apiUrl}/owner/ownerlogin`, ownerData);
-  
+
       // Extract the token from the response
       const token = response.data.data.token;
-  
+
       if (!token) {
-        alert('Token is missing in the response.');
+        toast.error('Token is missing in the response.');
         return;
       }
-  
+
       // Save the token to localStorage
       localStorage.setItem('authToken', token);
-  
-      alert('Logged in successfully');
+
+      toast.success('Logged in successfully!');
       console.log('Token saved:', token);
-  
+
       // Redirect to the Add Item page
       navigate('/owner/additem');
     } catch (error) {
       if (error.response) {
-        alert(error.response.data.message);
+        toast.error(error.response.data.message || 'Login failed.');
       } else {
-        alert('An unexpected error occurred');
+        toast.error('An unexpected error occurred.');
       }
     }
   };
-  
 
   return (
     <div className="flex justify-center mt-10">

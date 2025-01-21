@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -22,13 +25,16 @@ const Home = () => {
         });
 
         setProducts(response.data.products);
+        toast.success('Products loaded successfully!');
         setError(null);
       } catch (error) {
         if (error.response?.status === 401) {
           setError('Unauthorized access. Please log in again.');
           localStorage.removeItem('userauthToken'); // Clear invalid token
+          toast.error('Unauthorized access. Please log in again.');
         } else {
           setError('Failed to fetch products.');
+          toast.error('Failed to fetch products.');
         }
         console.error('Error fetching products:', error);
       } finally {
@@ -38,6 +44,11 @@ const Home = () => {
 
     fetchProducts();
   }, []);
+
+  const addToCart = (product) => {
+    // Placeholder for add-to-cart logic
+    toast.success(`${product.name} added to cart!`);
+  };
 
   return (
     <div>

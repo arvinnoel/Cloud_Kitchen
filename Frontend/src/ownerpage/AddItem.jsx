@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddItem = () => {
   const [product, setProduct] = useState({
@@ -31,7 +33,7 @@ const AddItem = () => {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        alert("You must be logged in to add a product.");
+        toast.error("You must be logged in to add a product.");
         return;
       }
   
@@ -42,15 +44,22 @@ const AddItem = () => {
         },
       });
   
-      alert("Product added successfully");
+      toast.success("Product added successfully");
       console.log(response.data);
+  
+      // Reset the form fields
+      setProduct({
+        name: '',
+        price: '',
+        description: '',
+        imageFile: null,
+      });
     } catch (error) {
-      console.error("Error adding product:", error.response || error);
-      alert(error.response?.data?.message || "An unexpected error occurred.");
+      toast.error("Error adding product:", error.response || error);
+      toast.error(error.response?.data?.message || "An unexpected error occurred.");
     }
   };
   
-
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-lg">
