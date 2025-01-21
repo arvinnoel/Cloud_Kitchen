@@ -1,10 +1,10 @@
 const multer = require('multer');
 const path = require('path');
 
-// Configure Multer Storage
+// Multer Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadsDir = path.join(__dirname, '../uploads'); 
+    const uploadsDir = path.join(__dirname, '..', 'uploads'); 
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
@@ -13,7 +13,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Initialize Multer with Storage Config
 const upload = multer({ storage });
 
 module.exports = upload;
