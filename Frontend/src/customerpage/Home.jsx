@@ -17,14 +17,18 @@ const Home = () => {
         if (!token) {
           throw new Error('Please log in.');
         }
-
+  
         const response = await axios.get(`${apiUrl}/user/getallproducts`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        setProducts(response.data.products);
+  
+        const sortedProducts = response.data.products.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
+  
         toast.success('Products loaded successfully!');
         setError(null);
       } catch (error) {
@@ -41,9 +45,10 @@ const Home = () => {
         setLoading(false);
       }
     };
-
+  
     fetchProducts();
   }, []);
+  
 
   const addToCart = (product) => {
     // Placeholder for add-to-cart logic

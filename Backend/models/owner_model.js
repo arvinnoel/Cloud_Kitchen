@@ -28,6 +28,7 @@ const OwnerSchema = new mongoose.Schema(
         description: String,
         imageFile: String,
       },
+      { timestamps: true },
     ],
     orders: [
       {
@@ -36,7 +37,9 @@ const OwnerSchema = new mongoose.Schema(
         totalAmount: Number,
         orderDate: Date,
         status: String,
+        
       },
+      { timestamps: true },
     ],
   },
   { timestamps: true }
