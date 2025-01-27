@@ -11,7 +11,7 @@ const MyKitchen = () => {
     
     useEffect(() => {
         const fetchProducts = async () => {
-            setLoading(true); // Start the loading state
+            setLoading(true);
             try {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -23,26 +23,25 @@ const MyKitchen = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-    
-                // Sort products by 'createdAt' in reverse order (newest first)
+
                 const sortedProducts = response.data.products.sort(
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
                 );
     
                 setProducts(sortedProducts);
                 setKitchenName(response.data.kitchenName || 'No Kitchen Name');
-                setError(null); // Clear any previous errors
+                setError(null); 
             } catch (error) {
                 if (error.response?.status === 401) {
                     setError('Unauthorized access. Please log in again.');
                     localStorage.removeItem('authToken');
-                    window.location.href = '/login'; // Redirect to login
+                    window.location.href = '/login'; 
                 } else {
                     setError('Please log in or add items.');
                 }
                 toast.error('Error fetching products:', error);
             } finally {
-                setLoading(false); // Stop the loading state
+                setLoading(false); 
             }
         };
     
@@ -62,7 +61,7 @@ const MyKitchen = () => {
               className="bg-white p-4 shadow-md rounded-md border border-gray-200"
             >
               <img
-          src={`${apiUrl}${product.imageFile}`}
+          src={product.imageFile}
           alt={product.name}
           className="w-full h-48 object-cover rounded-md"
         />

@@ -58,8 +58,16 @@ const AddItem = () => {
       toast.success('Product added successfully');
       setProduct({ name: '', price: '', description: '', imageFile: null });
       e.target.reset();
+
+      const { imageFile } = response.data; 
+      console.log('Uploaded image URL:', imageFile);
+
+      setProduct((prev) => ({ ...prev, imageFile }));
+
     } catch (error) {
-      toast.error(`Error adding product: ${error.response?.data?.message || 'An unexpected error occurred.'}`);
+      toast.error(
+        `Error adding product: ${error.response?.data?.message || 'An unexpected error occurred.'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -103,11 +111,20 @@ const AddItem = () => {
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               required
             />
-            {product.imageFile && (
+            {product.imageFile && typeof product.imageFile !== 'string' && (
               <div className="mt-4">
                 <img
                   src={URL.createObjectURL(product.imageFile)}
                   alt="Preview"
+                  className="w-48 h-48 object-cover rounded-md"
+                />
+              </div>
+            )}
+            {product.imageFile && typeof product.imageFile === 'string' && (
+              <div className="mt-4">
+                <img
+                  src={product.imageFile} 
+                  alt="Uploaded"
                   className="w-48 h-48 object-cover rounded-md"
                 />
               </div>

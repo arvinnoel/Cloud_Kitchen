@@ -15,10 +15,8 @@ const OwnerLogin = () => {
     try {
       const ownerData = { email, password };
 
-      // Send login request
       const response = await axios.post(`${apiUrl}/owner/ownerlogin`, ownerData);
 
-      // Extract the token from the response
       const token = response.data.data.token;
 
       if (!token) {
@@ -26,13 +24,11 @@ const OwnerLogin = () => {
         return;
       }
 
-      // Save the token to localStorage
       localStorage.setItem('authToken', token);
 
       toast.success('Logged in successfully!');
       console.log('Token saved:', token);
 
-      // Redirect to the Add Item page
       navigate('/owner/additem');
     } catch (error) {
       if (error.response) {

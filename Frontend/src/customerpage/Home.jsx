@@ -34,7 +34,7 @@ const Home = () => {
       } catch (error) {
         if (error.response?.status === 401) {
           setError('Unauthorized access. Please log in again.');
-          localStorage.removeItem('userauthToken'); // Clear invalid token
+          localStorage.removeItem('userauthToken'); 
           toast.error('Unauthorized access. Please log in again.');
         } else {
           setError('Failed to fetch products.');
@@ -51,7 +51,6 @@ const Home = () => {
   
 
   const addToCart = (product) => {
-    // Placeholder for add-to-cart logic
     toast.success(`${product.name} added to cart!`);
   };
 
@@ -69,7 +68,7 @@ const Home = () => {
             className="bg-white p-4 shadow-md rounded-md border border-gray-200"
           >
             <img
-              src={`${apiUrl}${product.imageFile}`} // Prepend the base URL
+              src={product.imageFile}
               alt={product.name}
               className="w-full h-48 object-cover rounded-md"
             />

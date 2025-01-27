@@ -20,12 +20,13 @@ RunServer();
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Configure CORS
 const allowedOrigins = [
   'https://cloud-kitchen-4a71.onrender.com',
   'http://localhost:5173',
+  'https://web.postman.co'
 ];
 app.use(cors({
   origin: (origin, callback) => {
