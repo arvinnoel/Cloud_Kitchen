@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 
 // Configure CORS
 const allowedOrigins = [
-  'https://cloud-kitchen-4a71.onrender.com',
+  'https://cloud-kitchen-b9bz.onrender.com',
   'http://localhost:5173',
   'https://web.postman.co'
 ];
