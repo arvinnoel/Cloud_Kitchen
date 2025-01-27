@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
 const RunServer = require('./database/connection');
 const signupRouter = require('./routes/user_routes');
 const OwnersignupRouter = require('./routes/owner_routes');
@@ -14,35 +13,24 @@ const userAuthMiddleware = require('./middleware/userAuthMiddleware');
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Initialize Database Connection
 RunServer();
 
+// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 
-const allowedOrigins = [
-  'https://cloud-kitchen-8nrj.onrender.com',
-  'http://localhost:5173',
-  'https://web.postman.co'
-];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error('CORS Error: Blocked origin', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-}));
+// Allow all origins (temporary for development)
+app.use(cors());
 
 // Routes
-app.use('/user', signupRouter); 
-app.use('/owner', OwnersignupRouter); 
-app.use('/admin', AdminRouter); 
+app.use('/user', signupRouter);          // User routes
+app.use('/owner', OwnersignupRouter);    // Owner routes
+app.use('/admin', AdminRouter);          // Admin routes
 
 // Authenticated Routes
-app.use('/owner', authenticateOwner, productRouter); 
-app.use('/user', userAuthMiddleware, productRouter); 
+app.use('/owner', authenticateOwner, productRouter); // Authenticated owner routes
+app.use('/user', userAuthMiddleware, productRouter); // Authenticated user routes
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
