@@ -14,17 +14,13 @@ const userAuthMiddleware = require('./middleware/userAuthMiddleware');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Initialize Database Connection
 RunServer();
 
-// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Configure CORS
 const allowedOrigins = [
-  'https://cloud-kitchen-b9bz.onrender.com',
+  'https://cloud-kitchen-8nrj.onrender.com',
   'http://localhost:5173',
   'https://web.postman.co'
 ];
