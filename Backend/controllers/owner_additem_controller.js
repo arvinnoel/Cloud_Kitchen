@@ -1,6 +1,7 @@
 const Product = require('../models/owner_additem_model');
 const Owner = require('../models/owner_model');
 const cloudinary = require('../middleware/cloudinary'); 
+const mongoose = require('mongoose');
 
 const addProduct = async (req, res) => {
   const { name, price, description } = req.body;
@@ -12,7 +13,6 @@ const addProduct = async (req, res) => {
   }
 
   try {
-    // Validate file type and size
     if (!imageFile.mimetype.startsWith('image/')) {
       return res.status(400).json({ message: 'Only image files are allowed' });
     }
@@ -84,7 +84,6 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-// Get Products for Logged-In Owner
 const getOwnerProducts = async (req, res) => {
   try {
     const ownerId = req.owner?._id;
@@ -105,8 +104,52 @@ const getOwnerProducts = async (req, res) => {
   }
 };
 
+const deleteProduct = async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    const owner = await Owner.findOne({ "products._id": productId });
+
+    if (!owner) {
+      return res.status(404).json({ message: 'Owner not found or product not part of owner\'s products' });
+    }
+
+    const productIndex = owner.products.findIndex((item) => item._id.toString() === productId);
+
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in Owner products array' });
+    }
+
+    const productDetails = owner.products[productIndex];
+
+    const productInOwnerAddItem = await Product.findOne({
+      ownerId: owner._id, 
+      name: productDetails.name, 
+      price: productDetails.price, 
+      description: productDetails.description, 
+      imageFile: productDetails.imageFile, 
+    });
+
+    if (productInOwnerAddItem) {
+      await Product.findByIdAndDelete(productInOwnerAddItem._id);
+    } else {
+      return res.status(404).json({ message: 'Product not found in OwnerAddItem collection' });
+    }
+
+    owner.products.splice(productIndex, 1);
+
+    await owner.save();
+
+    res.status(200).json({ message: 'Product deleted successfully from both collections' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
   getOwnerProducts,
+  deleteProduct,
 };

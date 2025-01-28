@@ -13,26 +13,21 @@ const userAuthMiddleware = require('./middleware/userAuthMiddleware');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Initialize Database Connection
 RunServer();
 
-// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Allow all origins (temporary for development)
 app.use(cors());
 
 // Routes
-app.use('/user', signupRouter);          // User routes
-app.use('/owner', OwnersignupRouter);    // Owner routes
-app.use('/admin', AdminRouter);          // Admin routes
+app.use('/user', signupRouter);          
+app.use('/owner', OwnersignupRouter);   
+app.use('/admin', AdminRouter);          
 
-// Authenticated Routes
-app.use('/owner', authenticateOwner, productRouter); // Authenticated owner routes
-app.use('/user', userAuthMiddleware, productRouter); // Authenticated user routes
+app.use('/owner', authenticateOwner, productRouter); 
+app.use('/user', userAuthMiddleware, productRouter); 
 
-// Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(`Error: ${err.message}`);
   res.status(err.status || 500).json({
@@ -42,7 +37,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
