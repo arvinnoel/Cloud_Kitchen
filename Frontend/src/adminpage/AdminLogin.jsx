@@ -47,10 +47,6 @@ const AdminLogin = () => {
       <button type="submit" className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
         Login </button>
       <br/>
-      {/* <div className="mt-4 text-center">
-        <h3 className="text-sm text-gray-600">Not registered?</h3>
-        <Link to="/owner/register" className="text-blue-500 hover:underline">Register</Link>
-      </div> */}
     </form>
   </div>
 </div>

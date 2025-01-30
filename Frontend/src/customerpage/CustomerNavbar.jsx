@@ -14,10 +14,9 @@ const Customer = () => {
   const handleLogout = () => {
     localStorage.removeItem("userauthToken");
     toast.success("Logged out successfully");
-    navigate("/customerlogin"); // Redirects after logout
+    navigate("/customerlogin"); 
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".dropdown-menu")) {
@@ -30,66 +29,30 @@ const Customer = () => {
 
   return (
     <div>
-      {/* Navbar */}
       <div className="bg-gray-100 shadow-md">
         <div className="container mx-auto px-4 py-4">
           <ul className="flex flex-wrap items-center gap-4 text-gray-700">
             <li>
-              <Link
-                to="/"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Home
-              </Link>
+              <Link to="/" className="hover:text-blue-500 transition-colors duration-200">Home</Link>
             </li>
             <li>
-              <Link
-                to="myfavorites"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Favorites
-              </Link>
+              <Link to="myfavorites" className="hover:text-blue-500 transition-colors duration-200"> Favorites</Link>
             </li>
             <li>
-              <Link
-                to="customerlogin"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Login
-              </Link>
+              <Link to="customerlogin" className="hover:text-blue-500 transition-colors duration-200" >Login </Link>
             </li>
             <li>
-              <Link
-                to="customerregister"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Register
-              </Link>
+              <Link to="customerregister" className="hover:text-blue-500 transition-colors duration-200">Register</Link>
             </li>
             <li>
-              <Link
-                to="cart"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Cart
-              </Link>
+              <Link to="cart" className="hover:text-blue-500 transition-colors duration-200">Cart </Link>
             </li>
             <li>
-              <Link
-                to="myorders"
-                className="hover:text-blue-500 transition-colors duration-200"
-              >
-                Orders
-              </Link>
+              <Link to="myorders" className="hover:text-blue-500 transition-colors duration-200">Orders</Link>
             </li>
-
-            {/* Dropdown Menu */}
             <li className="ml-auto relative dropdown-menu">
-              <button
-                onClick={toggleDropdown}
-                className="bg-gray-200 px-4 py-2 rounded-md text-gray-800 font-semibold hover:bg-gray-300"
-              >
-                Options
+              <button onClick={toggleDropdown}
+                className="bg-gray-200 px-4 py-2 rounded-md text-gray-800 font-semibold hover:bg-gray-300">Options
               </button>
 
               {isDropdownOpen && (
