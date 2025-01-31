@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {  toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
@@ -17,24 +17,24 @@ const Home = () => {
         if (!token) {
           throw new Error('Please log in.');
         }
-  
+
         const response = await axios.get(`${apiUrl}/user/getallproducts`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         const sortedProducts = response.data.products.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setProducts(sortedProducts);
-  
+
         toast.success('Products loaded successfully!');
         setError(null);
       } catch (error) {
         if (error.response?.status === 401) {
           setError('Unauthorized access. Please log in again.');
-          localStorage.removeItem('userauthToken'); 
+          localStorage.removeItem('userauthToken');
           toast.error('Unauthorized access. Please log in again.');
         } else {
           setError('Failed to fetch products.');
@@ -45,13 +45,35 @@ const Home = () => {
         setLoading(false);
       }
     };
-  
+
     fetchProducts();
   }, []);
-  
 
-  const addToCart = (product) => {
-    toast.success(`${product.name} added to cart!`);
+  const addToCart = async (product) => {
+    const token = localStorage.getItem('userauthToken');
+    if (!token) {
+      toast.error('Please log in to add items to your cart.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${apiUrl}/user/addtocart`,
+        { productId: product._id, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(`${product.name} added to cart!`);
+      }
+    } catch (error) {
+      toast.error('Already in Cart');
+      console.error('Error adding to cart:', error);
+    }
   };
 
   return (

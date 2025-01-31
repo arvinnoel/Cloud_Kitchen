@@ -1,7 +1,7 @@
 const User = require("../models/user_model");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const Product = require("../models/owner_additem_model");
 const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, confirmPassword } = req.body;
 
@@ -75,15 +75,15 @@ const loginUser = async (req, res) => {
 };
 
 const addItemToCart = async (req, res) => {
-  const { productId, quantity } = req.body;
-  const token = req.headers.authorization?.split(" ")[1]; // Extract token from header
+  const { productId } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "Authorization token is required" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ email: decoded.email });
 
     if (!user) {
@@ -91,32 +91,30 @@ const addItemToCart = async (req, res) => {
     }
 
     // Fetch the product details from the Product model
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId); // Ensure Product model is correctly imported
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Extract necessary product details
     const { imageFile, price, kitchenName, name } = product;
 
     // Check if product exists in the cart
     const productInCart = user.tasks.cart.find((item) => item.productId.toString() === productId);
 
-    if (productInCart) {
-      // Update the quantity of the product in the cart
-      productInCart.quantity += quantity;
-    } else {
-      // Add new product to the cart with additional product info
+    if (!productInCart) {
+      // Add new product to the cart with quantity set to 1
       user.tasks.cart.push({
         productId,
-        quantity,
+        quantity: 1,
         status: "pending",
-        imageFile,       // Store the product image
-        price,           // Store the price
-        kitchenName,     // Store the kitchen name
-        name,            // Store the product name
+        imageFile,
+        price,
+        kitchenName,
+        name,
       });
+    } else {
+      return res.status(400).json({ message: "Product is already in the cart. Only one quantity is allowed." });
     }
 
     await user.save();
@@ -142,8 +140,15 @@ const removeItemFromCart = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Check if product exists in the cart before removing
+    const productInCart = user.tasks.cart.find((item) => item.productId.toString() === productId);
+
+    if (!productInCart) {
+      return res.status(404).json({ message: "Product not found in cart" });
+    }
+
     // Remove the product from the cart
-    user.tasks.cart = user.tasks.cart.filter((item) => item.productId !== productId);
+    user.tasks.cart = user.tasks.cart.filter((item) => item.productId.toString() !== productId);
 
     await user.save();
     res.status(200).json({ message: "Product removed from cart", cart: user.tasks.cart });
@@ -151,10 +156,35 @@ const removeItemFromCart = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const getCartItems = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token is required" });
+  }
+
+  try {
+    // Verify JWT and extract user email
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return only the user's cart
+    res.status(200).json({ cart: user.tasks.cart });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
 
 module.exports = {
   registerUser,
   loginUser,
   removeItemFromCart,
-  addItemToCart
+  addItemToCart,
+  getCartItems
 };
