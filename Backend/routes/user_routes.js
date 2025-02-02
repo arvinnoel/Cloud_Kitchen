@@ -9,7 +9,7 @@ signupRouter.post('/register', registerUser)
 signupRouter.post('/addtocart', addItemToCart)
 signupRouter.delete('/removecartitem', removeItemFromCart)
 signupRouter.get('/getcartitem', getCartItems)
-// signupRouter.post('/checkout',userAuthMiddleware, placeOrder)
-// signupRouter.get('/userorders',userAuthMiddleware, getUserOrders)
+signupRouter.post('/checkout',userAuthMiddleware, placeOrder)
+signupRouter.get('/userorders',userAuthMiddleware, getUserOrders)
 module.exports = signupRouter;
 
