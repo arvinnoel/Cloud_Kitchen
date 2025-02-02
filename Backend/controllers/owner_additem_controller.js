@@ -192,32 +192,40 @@ const getOwnerOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   const { orderId, status } = req.body;
+  console.log("Received Order Update Request:", req.body); // Debugging log
 
   try {
     // Fetch the owner who is updating the order
     const ownerId = req.owner?._id;
-    const owner = await Owner.findById(ownerId);
+    console.log("Owner ID:", ownerId); // Debugging log
+    if (!ownerId) {
+      return res.status(401).json({ message: "Unauthorized request" });
+    }
 
+    const owner = await Owner.findById(ownerId);
     if (!owner) {
+      console.log("Owner not found in DB"); // Debugging log
       return res.status(404).json({ message: "Owner not found" });
     }
 
-    // Find the order in the owner's orders
-    const order = owner.orders.find(order => order.orderId === orderId);
-    if (!order) {
+    // Ensure orderId is compared correctly (convert to string)
+    const orderIndex = owner.orders.findIndex(order => order.orderId.toString() === orderId);
+    console.log("Order Index Found:", orderIndex); // Debugging log
+
+    if (orderIndex === -1) {
       return res.status(404).json({ message: "Order not found" });
     }
 
     // Update the order status in the owner's orders
-    order.status = status;
+    owner.orders[orderIndex].status = status;
     await owner.save();
 
     // Update the order status in the user's order history
     const user = await User.findOne({ "tasks.orderHistory.orderId": orderId });
     if (user) {
-      const userOrder = user.tasks.orderHistory.find(order => order.orderId === orderId);
-      if (userOrder) {
-        userOrder.status = status;
+      const userOrderIndex = user.tasks.orderHistory.findIndex(order => order.orderId.toString() === orderId);
+      if (userOrderIndex !== -1) {
+        user.tasks.orderHistory[userOrderIndex].status = status;
         await user.save();
       }
     }

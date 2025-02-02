@@ -32,7 +32,6 @@ const Login = () => {
       toast.success("Logged in successfully!");
       console.log("Token saved:", token);
 
-      // Redirect user to the homepage
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
@@ -50,7 +49,6 @@ const Login = () => {
       <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-lg">
         <h2 className="text-2xl font-semibold mb-6 text-center">Sign In</h2>
         <form onSubmit={handleLogin}>
-          {/* Email Input */}
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -67,8 +65,6 @@ const Login = () => {
               className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Password Input */}
           <div className="mb-6">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
@@ -86,7 +82,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Login Button */}
           <button
             type="submit"
             className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -94,7 +89,6 @@ const Login = () => {
             Login
           </button>
 
-          {/* Registration Link */}
           <div className="mt-4 text-center">
             <h3 className="text-sm text-gray-600">Not registered?</h3>
             <Link to="/customerregister" className="text-blue-500 hover:underline">
@@ -104,7 +98,6 @@ const Login = () => {
         </form>
       </div>
 
-      {/* Toast Container for Notifications */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

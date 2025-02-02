@@ -217,10 +217,8 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    // Generate Order ID
     const orderId = new mongoose.Types.ObjectId().toString();
 
-    // Get current date and time
     const orderDate = new Date();
 
     // Create an array of order details to store in User's orderHistory
@@ -258,22 +256,19 @@ const placeOrder = async (req, res) => {
         ],
         totalAmount: price * quantity,
         orderDate,
-        status: "pending", // Order starts in 'pending' status
+        status: "pending", 
       };
 
-      // Fetch the owner's id from the product's ownerId
       const owner = await Owner.findById(product.ownerId);
 
       if (owner) {
-        // Add the order to the owner's orders array
         owner.orders.push(orderDetails);
-        await owner.save(); // Persist the changes in the owner's orders
+        await owner.save(); 
       } else {
         console.error(`Owner not found for product: ${productId}`);
       }
     }
 
-    // Store order in User's order history
     const totalAmount = orderItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
@@ -282,11 +277,10 @@ const placeOrder = async (req, res) => {
       orderId,
       items: orderItems,
       totalPrice: totalAmount,
-      orderDate, // Store date & time
-      status: "pending", // Initially 'pending'
+      orderDate, 
+      status: "pending", 
     });
 
-    // Clear the user's cart after placing the order
     user.tasks.cart = [];
 
     await user.save();
@@ -303,7 +297,7 @@ const placeOrder = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user?._id; // Assuming user authentication middleware attaches `req.user`
+    const userId = req.user?._id; 
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized access" });

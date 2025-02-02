@@ -7,7 +7,7 @@ const ProductSchema = new mongoose.Schema(
     description: String,
     imageFile: String,
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const OrderSchema = new mongoose.Schema(
@@ -16,9 +16,13 @@ const OrderSchema = new mongoose.Schema(
     items: Array,
     totalAmount: Number,
     orderDate: Date,
-    status: String,
+    status: {
+      type: String,
+      enum: ["pending", "canceled", "success"], 
+      default: "pending",
+    },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const OwnerSchema = new mongoose.Schema(
@@ -42,12 +46,12 @@ const OwnerSchema = new mongoose.Schema(
       minlength: 8,
     },
 
-    products: [ProductSchema], 
+    products: [ProductSchema],
     orders: [OrderSchema],
   },
   { timestamps: true }
 );
 
-const Owner = mongoose.model('Owner', OwnerSchema);
+const Owner = mongoose.model("Owner", OwnerSchema);
 
 module.exports = Owner;

@@ -45,7 +45,7 @@ const Cart = () => {
   };
 
   const removeFromCart = async (productId) => {
-    console.log("Removing product with ID:", productId); // Debugging log
+    console.log("Removing product with ID:", productId);
 
     try {
       const response = await fetch(`${apiUrl}/user/removecartitem`, {

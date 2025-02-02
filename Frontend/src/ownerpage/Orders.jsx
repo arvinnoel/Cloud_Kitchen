@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify"; // Ensure react-toastify is installed
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [kitchenName, setKitchenName] = useState("");
+  const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-
       try {
         const token = localStorage.getItem("authToken")?.trim();
-
         if (!token) {
-          console.error("No owner auth token found.");
           setError("Please log in as an owner to see your orders.");
           setLoading(false);
           return;
@@ -33,35 +33,40 @@ const Orders = () => {
           setError("No orders found.");
           setOrders([]);
         } else {
-          const sortedOrders = response.data.orders.sort(
-            (a, b) => new Date(b.orderDate) - new Date(a.orderDate)
-          );
-          setOrders(sortedOrders);
+          // Group orders by orderId
+          const groupedOrders = response.data.orders.reduce((acc, order) => {
+            if (!acc[order.orderId]) {
+              acc[order.orderId] = { ...order, items: [] };
+            }
+            acc[order.orderId].items.push(...order.items);
+            return acc;
+          }, {});
+
+          setOrders(Object.values(groupedOrders).sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)));
         }
 
         setKitchenName(response.data.kitchenName || "No Kitchen Name");
         setError(null);
       } catch (error) {
         console.error("Error fetching orders:", error);
-
         if (error.response?.status === 401) {
-          setError("Unauthorized access. Please log in again as an owner.");
+          setError("Unauthorized access. Please log in again.");
           localStorage.removeItem("authToken");
-          window.location.href = "/owner/login";
+          navigate("/owner/login");
         } else {
           setError("Failed to fetch orders. Please try again.");
         }
-
-        toast.error("Error fetching orders: " + (error.response?.data?.message || error.message));
+        toast.error(error.response?.data?.message || "Error fetching orders.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [navigate, apiUrl]);
 
   const handleOrderStatusUpdate = async (orderId, status) => {
+    console.log("Updating Order:", { orderId, status });
     try {
       const token = localStorage.getItem("authToken")?.trim();
       if (!token) {
@@ -71,10 +76,7 @@ const Orders = () => {
 
       const response = await axios.put(
         `${apiUrl}/owner/updateorderstatus`,
-        {
-          orderId,
-          status,
-        },
+        { orderId: String(orderId), status: status },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,16 +85,21 @@ const Orders = () => {
         }
       );
 
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.orderId === orderId ? { ...order, status } : order
-        )
-      );
+      if (response.status === 200) {
+        console.log("Order Updated Successfully:", response.data);
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.orderId === orderId ? { ...order, status } : order
+          )
+        );
 
-      toast.success(`Order ${status === "success" ? "accepted" : "rejected"} successfully`);
+        toast.success(`Order ${status === "accepted" ? "accepted" : "rejected"} successfully`);
+      } else {
+        toast.error("Failed to update order status. Please try again.");
+      }
     } catch (error) {
       console.error("Error updating order status:", error);
-      toast.error("Error updating order status. Please try again.");
+      toast.error(`Error updating order status: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -108,37 +115,49 @@ const Orders = () => {
         <div className="space-y-4">
           {orders.length > 0 ? (
             orders.map((order) => (
-              <div key={order._id} className="border p-4 rounded-lg shadow-md">
+              <div key={order.orderId} className="border p-4 rounded-lg shadow-md">
                 <h3 className="text-xl font-bold">Order ID: {order.orderId}</h3>
                 <p className="text-gray-500">Total Amount: ₹{order.totalAmount}</p>
-                <p className="text-gray-500">Order Date: {new Date(order.orderDate).toLocaleString()}</p>
-                <p className="text-gray-500">Status: {order.status}</p>
+                <p className="text-gray-500">
+                  Order Date: {new Date(order.orderDate).toLocaleString()}
+                </p>
+                <p className="text-gray-500">
+                  Status:{" "}
+                  <span
+                    className={`font-semibold ${order.status === "accepted" ? "text-green-600" : "text-red-600"
+                      }`}
+                  >
+                    {order.status}
+                  </span>
+                </p>
 
-                <div className="mt-4">
-                  <h4 className="font-semibold">Items:</h4>
-                  <ul className="space-y-2">
-                    {order.items.map((item, index) => (
-                      <li key={index} className="flex justify-between">
-                        <span>{item.name}</span>
-                        <span>Qty: {item.quantity}</span>
-                        <span>₹{item.price * item.quantity}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {order.items.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold">Items:</h4>
+                    <ul className="space-y-2">
+                      {order.items.map((item, index) => (
+                        <li key={index} className="flex justify-between">
+                          <span>{item.name}</span>
+                          <span>Qty: {item.quantity}</span>
+                          <span>₹{item.price * item.quantity}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="mt-4 flex justify-between">
                   <button
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleOrderStatusUpdate(order.orderId, "success")}
-                    disabled={order.status !== "pending"}
+                    className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                    onClick={() => handleOrderStatusUpdate(order.orderId, "accepted")}
+                    disabled={order.status === "accepted"}
                   >
                     Accept
                   </button>
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
                     onClick={() => handleOrderStatusUpdate(order.orderId, "canceled")}
-                    disabled={order.status !== "pending"}
+                    disabled={order.status === "canceled"}
                   >
                     Reject
                   </button>
