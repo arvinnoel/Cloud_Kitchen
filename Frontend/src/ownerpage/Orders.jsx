@@ -7,7 +7,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [kitchenName, setKitchenName] = useState("");
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -22,7 +22,7 @@ const Orders = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/owner/getownerorders", {
+        const response = await axios.get(`${apiUrl}/owner/getownerorders`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -70,24 +70,22 @@ const Orders = () => {
       }
 
       const response = await axios.put(
-        "http://localhost:5000/owner/updateorderstatus",
+        `${apiUrl}/owner/updateorderstatus`,
         {
           orderId,
-          status, // "success" or "canceled"
+          status,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,  // Ensure token is correctly added here
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
 
-
-      // Update orders locally
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.orderId === orderId ? { ...order, status } : order  // Update by orderId
+          order.orderId === orderId ? { ...order, status } : order
         )
       );
 
@@ -111,7 +109,7 @@ const Orders = () => {
           {orders.length > 0 ? (
             orders.map((order) => (
               <div key={order._id} className="border p-4 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold">Order ID: {order.orderId}</h3> {/* Use orderId here */}
+                <h3 className="text-xl font-bold">Order ID: {order.orderId}</h3>
                 <p className="text-gray-500">Total Amount: ₹{order.totalAmount}</p>
                 <p className="text-gray-500">Order Date: {new Date(order.orderDate).toLocaleString()}</p>
                 <p className="text-gray-500">Status: {order.status}</p>
@@ -132,15 +130,15 @@ const Orders = () => {
                 <div className="mt-4 flex justify-between">
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleOrderStatusUpdate(order.orderId, "success")} // Use orderId here as well
-                    disabled={order.status !== "pending"} // Disable if already processed
+                    onClick={() => handleOrderStatusUpdate(order.orderId, "success")}
+                    disabled={order.status !== "pending"}
                   >
                     Accept
                   </button>
                   <button
                     className="bg-red-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleOrderStatusUpdate(order.orderId, "canceled")} // Use orderId here as well
-                    disabled={order.status !== "pending"} // Disable if already processed
+                    onClick={() => handleOrderStatusUpdate(order.orderId, "canceled")}
+                    disabled={order.status !== "pending"}
                   >
                     Reject
                   </button>

@@ -10,16 +10,14 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/user/userorders', {
+        const response = await axios.get(`${apiUrl}/user/userorders`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        
-        // Sort orders by date (newest first)
         const sortedOrders = response.data.orders
-          .slice()  // Create a copy to avoid modifying the original array
+          .slice()
           .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
         setOrders(sortedOrders);
@@ -70,11 +68,10 @@ const MyOrders = () => {
               <div className="mt-4 flex justify-between items-center">
                 <span className="font-semibold text-lg">Total: ₹{order.totalPrice}</span>
                 <span
-                  className={`px-3 py-1 text-sm rounded-full ${
-                    order.status === 'success'
+                  className={`px-3 py-1 text-sm rounded-full ${order.status === 'success'
                       ? 'bg-green-500 text-white'
                       : 'bg-red-500 text-white'
-                  }`}
+                    }`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>

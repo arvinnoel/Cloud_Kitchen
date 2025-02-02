@@ -78,7 +78,7 @@ const Cart = () => {
   const placeOrder = async () => {
     setPlacingOrder(true);
     try {
-      const response = await fetch(`http://localhost:5000/user/checkout`, {
+      const response = await fetch(`${apiUrl}/user/checkout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
