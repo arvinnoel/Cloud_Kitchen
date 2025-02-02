@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define the Cart Item Schema
 const CartItemSchema = new mongoose.Schema(
@@ -31,7 +31,7 @@ const WishlistItemSchema = new mongoose.Schema(
   { timestamps: true } // Add timestamps for wishlist items
 );
 
-// Define the Order History Schema
+// Define the Order History Schema (Updated to include status tracking)
 const OrderHistorySchema = new mongoose.Schema(
   {
     orderId: String,
@@ -39,14 +39,20 @@ const OrderHistorySchema = new mongoose.Schema(
       {
         productId: String,
         quantity: Number,
+        imageFile: String, // Added image
+        price: Number, // Added price
+        name: String, // Added name
       },
     ],
     totalPrice: Number,
-    orderDate: Date,
+    orderDate: {
+      type: Date,
+      default: Date.now, // Automatically set order date
+    },
     status: {
       type: String,
-      enum: ["success", "failed"],
-      default: "success",
+      enum: ['pending', 'accepted', 'rejected', 'canceled'],
+      default: "pending", // Default status when order is placed
     },
   },
   { timestamps: true } // Add timestamps for order history
@@ -76,12 +82,12 @@ const userSchema = new mongoose.Schema(
     tasks: {
       cart: [CartItemSchema], // Use CartItemSchema for cart
       wishlist: [WishlistItemSchema], // Use WishlistItemSchema for wishlist
-      orderHistory: [OrderHistorySchema], // Use OrderHistorySchema for order history
+      orderHistory: [OrderHistorySchema], // Use updated OrderHistorySchema
     },
   },
   { timestamps: true } // Add timestamps for the User document itself
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

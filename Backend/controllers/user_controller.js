@@ -1,7 +1,10 @@
 const User = require("../models/user_model");
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const Product = require("../models/owner_additem_model");
+const mongoose = require("mongoose");
+const Owner = require("../models/owner_model");
+
 const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, confirmPassword } = req.body;
 
@@ -27,7 +30,8 @@ const registerUser = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "User registered successfully", data: newUser,
+      message: "User registered successfully",
+      data: newUser,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -54,7 +58,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: userExists._id, email: userExists.email },
       process.env.JWT_SECRET, // Use your secret key from the environment
-      { expiresIn: '1h' } // Token expiry time, e.g., 1 hour
+      { expiresIn: "1h" } // Token expiry time, e.g., 1 hour
     );
 
     // Store the token in the user's record in the database
@@ -100,7 +104,9 @@ const addItemToCart = async (req, res) => {
     const { imageFile, price, kitchenName, name } = product;
 
     // Check if product exists in the cart
-    const productInCart = user.tasks.cart.find((item) => item.productId.toString() === productId);
+    const productInCart = user.tasks.cart.find(
+      (item) => item.productId.toString() === productId
+    );
 
     if (!productInCart) {
       // Add new product to the cart with quantity set to 1
@@ -114,11 +120,18 @@ const addItemToCart = async (req, res) => {
         name,
       });
     } else {
-      return res.status(400).json({ message: "Product is already in the cart. Only one quantity is allowed." });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Product is already in the cart. Only one quantity is allowed.",
+        });
     }
 
     await user.save();
-    res.status(200).json({ message: "Product added to cart", cart: user.tasks.cart });
+    res
+      .status(200)
+      .json({ message: "Product added to cart", cart: user.tasks.cart });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -126,7 +139,7 @@ const addItemToCart = async (req, res) => {
 
 const removeItemFromCart = async (req, res) => {
   const { productId } = req.body;
-  const token = req.headers.authorization?.split(" ")[1]; 
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "Authorization token is required" });
@@ -141,17 +154,23 @@ const removeItemFromCart = async (req, res) => {
     }
 
     // Check if product exists in the cart before removing
-    const productInCart = user.tasks.cart.find((item) => item.productId.toString() === productId);
+    const productInCart = user.tasks.cart.find(
+      (item) => item.productId.toString() === productId
+    );
 
     if (!productInCart) {
       return res.status(404).json({ message: "Product not found in cart" });
     }
 
     // Remove the product from the cart
-    user.tasks.cart = user.tasks.cart.filter((item) => item.productId.toString() !== productId);
+    user.tasks.cart = user.tasks.cart.filter(
+      (item) => item.productId.toString() !== productId
+    );
 
     await user.save();
-    res.status(200).json({ message: "Product removed from cart", cart: user.tasks.cart });
+    res
+      .status(200)
+      .json({ message: "Product removed from cart", cart: user.tasks.cart });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -178,13 +197,146 @@ const getCartItems = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const placeOrder = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token is required" });
+  }
 
+  try {
+    // Decode JWT to get user details
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.tasks.cart.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    // Generate Order ID
+    const orderId = new mongoose.Types.ObjectId().toString();
+
+    // Get current date and time
+    const orderDate = new Date();
+
+    // Create an array of order details to store in User's orderHistory
+    const orderItems = [];
+
+    // Iterate over cart items to group them by kitchen (owner)
+    for (const item of user.tasks.cart) {
+      const { productId, quantity, imageFile, price, kitchenName, name } = item;
+
+      // Fetch product details and its associated owner
+      const product = await Product.findById(productId).populate("ownerId");
+
+      if (!product) continue;
+
+      // Add product details to order items for user
+      orderItems.push({
+        productId,
+        quantity,
+        imageFile,
+        price,
+        name,
+      });
+
+      // Create order details for the particular owner
+      const orderDetails = {
+        orderId,
+        items: [
+          {
+            productId,
+            quantity,
+            imageFile,
+            price,
+            name,
+          },
+        ],
+        totalAmount: price * quantity,
+        orderDate,
+        status: "pending", // Order starts in 'pending' status
+      };
+
+      // Fetch the owner's id from the product's ownerId
+      const owner = await Owner.findById(product.ownerId);
+
+      if (owner) {
+        // Add the order to the owner's orders array
+        owner.orders.push(orderDetails);
+        await owner.save(); // Persist the changes in the owner's orders
+      } else {
+        console.error(`Owner not found for product: ${productId}`);
+      }
+    }
+
+    // Store order in User's order history
+    const totalAmount = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    user.tasks.orderHistory.push({
+      orderId,
+      items: orderItems,
+      totalPrice: totalAmount,
+      orderDate, // Store date & time
+      status: "pending", // Initially 'pending'
+    });
+
+    // Clear the user's cart after placing the order
+    user.tasks.cart = [];
+
+    await user.save();
+
+    res.status(201).json({
+      message: "Order placed successfully",
+      orderHistory: user.tasks.orderHistory,
+    });
+  } catch (error) {
+    console.error("Error placing order:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.user?._id; // Assuming user authentication middleware attaches `req.user`
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
+
+    const user = await User.findById(userId).populate(
+      "tasks.orderHistory.items.productId"
+    );
+
+    if (
+      !user ||
+      !user.tasks.orderHistory ||
+      user.tasks.orderHistory.length === 0
+    ) {
+      return res.status(404).json({ message: "No orders found for this user" });
+    }
+
+    res.status(200).json({
+      message: "Orders fetched successfully",
+      orders: user.tasks.orderHistory,
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 module.exports = {
   registerUser,
   loginUser,
   removeItemFromCart,
   addItemToCart,
-  getCartItems
+  getCartItems,
+  placeOrder,
+  getUserOrders,
 };

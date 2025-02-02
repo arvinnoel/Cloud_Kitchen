@@ -1,5 +1,5 @@
 const express = require('express');
-const { addProduct, getAllProducts, getOwnerProducts,deleteProduct} = require('../controllers/owner_additem_controller');
+const { addProduct, getAllProducts, getOwnerProducts,deleteProduct, getOwnerOrders,updateOrderStatus} = require('../controllers/owner_additem_controller');
 const authMiddleware = require('../middleware/authMiddleware'); 
 const userauthMiddleware = require('../middleware/userAuthMiddleware');
 const upload = require('../middleware/multerConfig');
@@ -10,5 +10,7 @@ productRouter.post('/addproducts', authMiddleware, upload.single('imageFile'), a
 productRouter.get('/getallproducts',userauthMiddleware, getAllProducts);
 productRouter.get('/getownerproducts', authMiddleware, getOwnerProducts);
 productRouter.delete('/deleteproduct/:productId', authMiddleware, deleteProduct);
+productRouter.get('/getownerorders', authMiddleware, getOwnerOrders);
+productRouter.put('/updateorderstatus', authMiddleware, updateOrderStatus);
 
 module.exports = productRouter;

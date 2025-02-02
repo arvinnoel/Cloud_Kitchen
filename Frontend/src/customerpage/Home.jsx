@@ -14,8 +14,13 @@ const Home = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('userauthToken');
+        
+        // Check if user is logged in
         if (!token) {
-          throw new Error('Please log in.');
+          toast.info('Login to see the products.');
+          // setError('Please log in to view products.');
+          setLoading(false);
+          return; // Stop fetching products if not logged in
         }
 
         const response = await axios.get(`${apiUrl}/user/getallproducts`, {
@@ -29,15 +34,21 @@ const Home = () => {
         );
         setProducts(sortedProducts);
 
-        toast.success('Products loaded successfully!');
+        if (sortedProducts.length === 0) {
+          toast.info('No products available. Please check back later!');
+        } else {
+          toast.success('Products loaded successfully!');
+        }
         setError(null);
       } catch (error) {
         if (error.response?.status === 401) {
           setError('Unauthorized access. Please log in again.');
           localStorage.removeItem('userauthToken');
           toast.error('Unauthorized access. Please log in again.');
+          // Redirect to login page
+          window.location.href = '/login';
         } else {
-          setError('Failed to fetch products.');
+          setError('');
           toast.error('Failed to fetch products.');
         }
         console.error('Error fetching products:', error);
@@ -57,8 +68,8 @@ const Home = () => {
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/user/addtocart`,
-        { productId: product._id, quantity: 1 },
+      const response = await axios.post(`${apiUrl}/user/addtocart`, 
+        { productId: product._id, quantity: 1 }, 
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,8 +94,15 @@ const Home = () => {
       {loading && <p className="text-center">Loading products...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
+      {/* Check if the user is logged in and has products */}
+      {products.length === 0 && !error && (
+        <p className="text-center text-gray-500">
+          {localStorage.getItem('userauthToken') ? 'No products to display' : 'Login to see the products'}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-        {products.map((product) => (
+        {products.length > 0 && products.map((product) => (
           <div
             key={product._id}
             className="bg-white p-4 shadow-md rounded-md border border-gray-200"
@@ -96,7 +114,7 @@ const Home = () => {
             />
             <h2 className="text-lg font-semibold mt-2">{product.name}</h2>
             <p className="text-gray-600 mt-1">{product.description}</p>
-            <p className="text-blue-600 font-bold mt-2">${product.price}</p>
+            <p className="text-blue-600 font-bold mt-2">₹{product.price}</p>
 
             <div className="mt-4 flex items-center justify-between">
               <button
