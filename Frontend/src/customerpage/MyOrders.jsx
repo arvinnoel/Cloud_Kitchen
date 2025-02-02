@@ -6,7 +6,7 @@ const MyOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const token = localStorage.getItem("userauthToken");
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -69,8 +69,8 @@ const MyOrders = () => {
                 <span className="font-semibold text-lg">Total: ₹{order.totalPrice}</span>
                 <span
                   className={`px-3 py-1 text-sm rounded-full ${order.status === 'success'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-red-500 text-white'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-red-500 text-white'
                     }`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
