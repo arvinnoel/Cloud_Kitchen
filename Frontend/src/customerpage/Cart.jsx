@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-toast.configure();
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
