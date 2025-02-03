@@ -51,7 +51,7 @@ const OrderHistorySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'canceled'],
+      enum: ["pending", "canceled", "success"], 
       default: "pending",
     }    
   },
