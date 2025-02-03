@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -7,6 +9,7 @@ const MyOrders = () => {
   const [error, setError] = useState('');
   const token = localStorage.getItem("userauthToken");
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -16,16 +19,19 @@ const MyOrders = () => {
             "Content-Type": "application/json",
           },
         });
+
         const sortedOrders = response.data.orders
           .slice()
           .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
         setOrders(sortedOrders);
         setLoading(false);
+        toast.success("Orders fetched successfully!");
       } catch (error) {
         console.error('Error fetching orders:', error);
         setError('Failed to fetch orders.');
         setLoading(false);
+        toast.error("Failed to fetch orders. Please try again.");
       }
     };
 
@@ -51,7 +57,9 @@ const MyOrders = () => {
           {orders.map((order) => (
             <div key={order._id} className="bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-2xl font-semibold mb-2">Order #{order.orderId}</h2>
-              <p className="text-sm text-gray-500">Date: {new Date(order.orderDate).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-500">
+                Date: {new Date(order.orderDate).toLocaleDateString()}
+              </p>
 
               <div className="mt-4">
                 <h3 className="font-semibold">Items:</h3>
@@ -69,8 +77,8 @@ const MyOrders = () => {
                 <span className="font-semibold text-lg">Total: ₹{order.totalPrice}</span>
                 <span
                   className={`px-3 py-1 text-sm rounded-full ${order.status === 'success'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-red-500 text-white'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-red-500 text-white'
                     }`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -80,6 +88,7 @@ const MyOrders = () => {
           ))}
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

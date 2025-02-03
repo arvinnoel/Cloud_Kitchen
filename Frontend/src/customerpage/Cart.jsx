@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+toast.configure();
+
 const Cart = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,17 +39,17 @@ const Cart = () => {
         setCart(data.cart);
       } else {
         setError(data.message || "Failed to fetch cart items.");
+        toast.error(data.message || "Failed to fetch cart items.");
       }
     } catch (error) {
       setError("Failed to fetch cart.");
+      toast.error("Failed to fetch cart.");
     } finally {
       setLoading(false);
     }
   };
 
   const removeFromCart = async (productId) => {
-    console.log("Removing product with ID:", productId);
-
     try {
       const response = await fetch(`${apiUrl}/user/removecartitem`, {
         method: "DELETE",
@@ -57,61 +60,27 @@ const Cart = () => {
         body: JSON.stringify({ productId }),
       });
 
-      const data = await response.text();
-      console.log("Raw Response:", data);
-
-      try {
-        const jsonData = JSON.parse(data);
-        if (response.ok) {
-          setCart(jsonData.cart);
-        } else {
-          console.error("Error removing item from cart:", jsonData.message);
-        }
-      } catch (e) {
-        console.error("Error parsing response:", e);
-      }
-    } catch (error) {
-      console.error("Error removing item from cart:", error);
-    }
-  };
-
-  const placeOrder = async () => {
-    setPlacingOrder(true);
-    try {
-      const response = await fetch(`${apiUrl}/user/checkout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cart, userId }),
-      });
-
       const data = await response.json();
       if (response.ok) {
-        setOrderSuccess(true);
-        setCart([]);
+        setCart(data.cart);
+        toast.success("Item removed from cart successfully.");
       } else {
-        setError(data.message || "Order placement failed.");
+        toast.error(data.message || "Error removing item from cart.");
       }
     } catch (error) {
-      setError("Order placement failed.");
-    } finally {
-      setPlacingOrder(false);
+      toast.error("Error removing item from cart.");
     }
   };
+
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Your Cart </h1>
-        {loading && (
-          <p className="text-center text-gray-600">Loading cart...</p>
-        )}
+        {loading && <p className="text-center text-gray-600">Loading cart...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
         {!loading && !error && cart.length === 0 && (
-          <p className="text-center text-gray-600 text-xl">
-            Your cart is empty.
-          </p>
+          <p className="text-center text-gray-600 text-xl">Your cart is empty.</p>
         )}
 
         {!loading && !error && cart.length > 0 && (
@@ -136,67 +105,16 @@ const Cart = () => {
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-800">Total</h3>
                 <p className="text-xl font-bold text-gray-800">
-                  ₹
-                  {cart
-                    .reduce(
-                      (total, item) => total + item.price * item.quantity,
-                      0
-                    )
-                    .toFixed(2)}
+                  ₹{cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
                 </p>
               </div>
-              <button
-                className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
-                onClick={() => setShowPopup(true)}
-              >
+              <button className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700" onClick={() => setShowPopup(true)}>
                 Proceed to Checkout
               </button>
             </div>
           </div>
         )}
       </div>
-
-      {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-2xl font-semibold text-center mb-4">
-              Confirm Order
-            </h2>
-            <p className="text-center text-gray-700">
-              Are you sure you want to place this order?
-            </p>
-
-            {placingOrder ? (
-              <p className="text-center text-blue-600">Placing order...</p>
-            ) : orderSuccess ? (
-              <p className="text-center text-green-600">
-                Order placed successfully!
-                <Link
-                  to="/myorders"
-                  className="text-blue-600 font-semibold hover:underline mt-2 block"
-                >
-                  View Orders
-                </Link>
-              </p>
-            ) : (
-              <div className="flex justify-center space-x-4 mt-4">
-                <button
-                  onClick={placeOrder}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                >
-                  Place Order
-                </button>
-                <button
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  onClick={() => setShowPopup(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
