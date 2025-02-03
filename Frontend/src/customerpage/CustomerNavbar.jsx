@@ -14,7 +14,9 @@ const Customer = () => {
   const handleLogout = () => {
     localStorage.removeItem("userauthToken");
     toast.success("Logged out successfully");
-    navigate("/customerlogin"); 
+    setTimeout(() => {
+      navigate("/customerlogin");
+    }, 1000);
   };
 
   useEffect(() => {

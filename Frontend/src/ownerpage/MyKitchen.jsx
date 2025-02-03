@@ -71,7 +71,7 @@ const MyKitchen = () => {
       );
 
       setProducts(products.filter((product) => product._id !== productId));
-      toast.success(response.data.message || "Product deleted successfully");
+      toast.success("Product deleted successfully");
     } catch (error) {
       toast.error("Error deleting product:", error);
     } finally {

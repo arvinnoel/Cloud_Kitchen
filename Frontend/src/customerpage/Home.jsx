@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
@@ -14,13 +14,11 @@ const Home = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('userauthToken');
-        
-        // Check if user is logged in
+
         if (!token) {
           toast.info('Login to see the products.');
-          // setError('Please log in to view products.');
           setLoading(false);
-          return; // Stop fetching products if not logged in
+          return;
         }
 
         const response = await axios.get(`${apiUrl}/user/getallproducts`, {
@@ -45,7 +43,6 @@ const Home = () => {
           setError('Unauthorized access. Please log in again.');
           localStorage.removeItem('userauthToken');
           toast.error('Unauthorized access. Please log in again.');
-          // Redirect to login page
           window.location.href = '/login';
         } else {
           setError('');
@@ -68,8 +65,9 @@ const Home = () => {
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/user/addtocart`, 
-        { productId: product._id, quantity: 1 }, 
+      const response = await axios.post(
+        `${apiUrl}/user/addtocart`,
+        { productId: product._id, quantity: 1 },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,8 +76,10 @@ const Home = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.data.success || (response.status >= 200 && response.status < 300)) {
         toast.success(`${product.name} added to cart!`);
+      } else {
+        toast.error('Failed to add product to cart.');
       }
     } catch (error) {
       toast.error('Already in Cart');
@@ -94,7 +94,6 @@ const Home = () => {
       {loading && <p className="text-center">Loading products...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
-      {/* Check if the user is logged in and has products */}
       {products.length === 0 && !error && (
         <p className="text-center text-gray-500">
           {localStorage.getItem('userauthToken') ? 'No products to display' : 'Login to see the products'}
@@ -127,6 +126,7 @@ const Home = () => {
           </div>
         ))}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

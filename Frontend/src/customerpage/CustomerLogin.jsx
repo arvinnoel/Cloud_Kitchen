@@ -8,7 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const apiUrl = import.meta.env.VITE_BACKEND_URL
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,28 +16,27 @@ const Login = () => {
     try {
       const response = await axios.post(`${apiUrl}/user/login`, { email, password });
 
-      if (!response.data || !response.data.data) {
-        throw new Error("Unexpected response structure");
+      if (response.status >= 200 && response.status < 300) {
+        const token = response.data?.data?.token;
+
+        if (!token) {
+          toast.error("Invalid User");
+          return;
+        }
+
+        localStorage.setItem("userauthToken", token);
+        toast.success("Logged in successfully!");
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else {
+        toast.error("Login failed. Please try again.");
       }
-
-      const token = response.data.data.token;
-      if (!token) {
-        toast.error("Token is missing in the response.");
-        return;
-      }
-
-      // Save token to localStorage
-      localStorage.setItem("userauthToken", token);
-
-      toast.success("Logged in successfully!");
-      console.log("Token saved:", token);
-
-      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
 
-      if (error.response) {
-        toast.error(error.response.data.message || "Invalid login credentials.");
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else {
         toast.error("An unexpected error occurred. Please try again.");
       }
