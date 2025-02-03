@@ -93,7 +93,8 @@ const Orders = () => {
           )
         );
 
-        toast.success(`Order ${status === "accepted" ? "accepted" : "rejected"} successfully`);
+        // Display correct status message
+        toast.success(`Order ${status} successfully`);
       } else {
         toast.error("Failed to update order status. Please try again.");
       }
@@ -124,7 +125,7 @@ const Orders = () => {
                 <p className="text-gray-500">
                   Status:{" "}
                   <span
-                    className={`font-semibold ${order.status === "accepted" ? "text-green-600" : "text-red-600"
+                    className={`font-semibold ${order.status === "accepted" ? "text-green-600" : order.status === "canceled" ? "text-red-600" : "text-yellow-600"
                       }`}
                   >
                     {order.status}
@@ -150,16 +151,16 @@ const Orders = () => {
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
                     onClick={() => handleOrderStatusUpdate(order.orderId, "accepted")}
-                    disabled={order.status === "accepted"}
+                    disabled={order.status === "accepted" || order.status === "canceled"}
                   >
                     Accept
                   </button>
                   <button
                     className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
                     onClick={() => handleOrderStatusUpdate(order.orderId, "canceled")}
-                    disabled={order.status === "canceled"}
+                    disabled={order.status === "accepted" || order.status === "canceled"}
                   >
-                    Reject
+                    Cancel
                   </button>
                 </div>
               </div>

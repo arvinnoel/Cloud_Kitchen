@@ -1,7 +1,7 @@
 const Product = require("../models/owner_additem_model");
 const Owner = require("../models/owner_model");
 const cloudinary = require("../middleware/cloudinary");
-const User = require("../models/user_model"); 
+const User = require("../models/user_model");
 
 const addProduct = async (req, res) => {
   const { name, price, description } = req.body;
@@ -229,8 +229,8 @@ const updateOrderStatus = async (req, res) => {
         await user.save();
       }
     }
-
-    res.status(200).json({ message: `Order ${status === "success" ? "accepted" : "rejected"} successfully` });
+    // res.status(200).json({ message: `Order ${status === "success" ? "accepted" : "rejected"} successfully` });
+    res.status(200).json({ message: `Order ${status} successfully` });
   } catch (error) {
     console.error("Error updating order status:", error);
     res.status(500).json({ message: "Server error", error: error.message });
