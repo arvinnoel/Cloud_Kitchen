@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MyKitchen = () => {
@@ -19,7 +19,6 @@ const MyKitchen = () => {
         if (!token) {
           throw new Error("Please log in to see your kitchen.");
         }
-
         const response = await axios.get(`${apiUrl}/owner/getownerproducts`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -36,29 +35,28 @@ const MyKitchen = () => {
         if (sortedProducts.length === 0) {
           toast.info("No products added yet. Please add some products.");
         }
-
         setError(null);
       } catch (error) {
         if (error.response?.status === 401) {
-          setError("Unauthorized access. Please log in again.");
+          setError("Please log in again.");
           localStorage.removeItem("authToken");
           window.location.href = "/login";
         } else {
           setError("");
         }
+        toast.error("Please log in to see your kitchen.");
         toast.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
-
+    toast.success("Products fetched successfully");
     fetchProducts();
   }, [apiUrl]);
 
   const handleDelete = async (productId) => {
     setDeletingProductId(productId);
     setLoading(true);
-
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.delete(
@@ -69,7 +67,6 @@ const MyKitchen = () => {
           },
         }
       );
-
       setProducts(products.filter((product) => product._id !== productId));
       toast.success("Product deleted successfully");
     } catch (error) {
@@ -119,6 +116,7 @@ const MyKitchen = () => {
           </p>
         )}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

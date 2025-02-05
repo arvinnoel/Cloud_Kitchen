@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const OwnerRegister = () => {
@@ -123,6 +123,7 @@ const OwnerRegister = () => {
         </form>
       </div>
       <Outlet />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

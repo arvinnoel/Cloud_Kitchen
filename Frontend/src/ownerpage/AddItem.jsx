@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast , ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AddItem = () => {
@@ -153,6 +153,7 @@ const AddItem = () => {
           </div>
         </form>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

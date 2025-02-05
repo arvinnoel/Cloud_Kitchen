@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Owner = () => {
@@ -60,6 +60,7 @@ const Owner = () => {
         </div>
       </div>
       <Outlet />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

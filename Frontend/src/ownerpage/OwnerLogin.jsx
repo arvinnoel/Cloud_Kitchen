@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const OwnerLogin = () => {
   const [email, setEmail] = useState('');
@@ -14,31 +14,32 @@ const OwnerLogin = () => {
     e.preventDefault();
     try {
       const ownerData = { email, password };
-
       const response = await axios.post(`${apiUrl}/owner/ownerlogin`, ownerData);
-
       const token = response.data.data.token;
-
+  
       if (!token) {
-        toast.error('Token is missing in the response.');
+        toast.error("Invalid User");
         return;
       }
-
+  
       localStorage.setItem('authToken', token);
-
       toast.success('Logged in successfully!');
-      console.log('Token saved:', token);
-
-      navigate('/owner/additem');
-    } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message || 'Login failed.');
+      
+      setTimeout(() => {
+        navigate('/owner/additem');
+      }, 1000);
+    } 
+    catch (error) {
+      console.error("Login error:", error);
+  
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else {
-        toast.error('An unexpected error occurred.');
+        toast.error("An unexpected error occurred. Please try again.");
       }
     }
   };
-
+  
   return (
     <div className="flex justify-center mt-10">
       <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-lg">
@@ -89,6 +90,7 @@ const OwnerLogin = () => {
           </div>
         </form>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

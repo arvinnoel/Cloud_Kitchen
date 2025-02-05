@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
@@ -171,6 +171,7 @@ const Orders = () => {
           )}
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
