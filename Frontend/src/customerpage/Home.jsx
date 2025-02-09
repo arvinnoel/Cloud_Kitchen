@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { Routes, Route } from 'react-router-dom'
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
@@ -99,7 +99,6 @@ const Home = () => {
           {localStorage.getItem('userauthToken') ? 'No products to display' : 'Login to see the products'}
         </p>
       )}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
         {products.length > 0 && products.map((product) => (
           <div

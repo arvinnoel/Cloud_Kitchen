@@ -7,11 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 const OwnerLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const ownerData = { email, password };
       const response = await axios.post(`${apiUrl}/owner/ownerlogin`, ownerData);
@@ -19,6 +21,7 @@ const OwnerLogin = () => {
   
       if (!token) {
         toast.error("Invalid User");
+        setLoading(false);
         return;
       }
   
@@ -37,6 +40,8 @@ const OwnerLogin = () => {
       } else {
         toast.error("An unexpected error occurred. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -78,8 +83,9 @@ const OwnerLogin = () => {
           <button
             type="submit"
             className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
           <br />
           <div className="mt-4 text-center">
