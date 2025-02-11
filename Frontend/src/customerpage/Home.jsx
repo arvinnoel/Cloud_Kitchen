@@ -89,8 +89,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1 className="text-center text-2xl font-bold mb-6">Home</h1>
-
+      <h1 className="text-center text-2xl font-bold mb-6 mt-[8px]">Home</h1>
       {loading && <p className="text-center">Loading products...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
@@ -117,9 +116,9 @@ const Home = () => {
             <div className="mt-4 flex items-center justify-between">
               <button
                 className="text-green-500 font-bold"
-                onClick={() => addToCart(product)}
-              >
-                Add to Cart
+                onClick={() => addToCart(product)} disabled={loading}
+              >{loading ? "Adding to cart" : "Add to Cart"}
+                
               </button>
             </div>
           </div>

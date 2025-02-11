@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
+import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
@@ -23,103 +23,104 @@ const Register = () => {
     }
 
     try {
-      const userData = { firstName, lastName, email, password, confirmPassword };
+      const userData = { firstName, lastName, email, password };
 
-      const response = await axios.post(`${apiUrl}/user/register`, userData);
+      await axios.post(`${apiUrl}/user/register`, userData);
 
       toast.success('Registered successfully');
-      navigate('/customerlogin');
+      setTimeout(() => navigate('/customerlogin'), 1500);
     } catch (error) {
-      if (error.response && error.response.data) {
-        toast.error(error.response.data.message || 'Failed to register');
-      } else {
-        toast.error('An unexpected error occurred');
-      }
+      toast.error(error.response?.data?.message || 'Failed to register');
     }
   };
 
   return (
-    <div className="flex justify-center mt-8">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <ToastContainer />
 
       <div className="w-full max-w-md bg-white p-6 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Sign Up</h2>
-        <form onSubmit={handleRegister}>
-          <div className="mb-3">
-            <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">First Name</label>
-            <input 
-              type="text" 
-              id="firstname" 
-              name="firstname" 
-              placeholder="Enter your first name" 
-              value={firstName} 
-              onChange={(e) => setFirstname(e.target.value)} 
+        <h2 className="text-3xl font-semibold mb-5 text-center text-gray-700">Sign Up</h2>
+
+        <form onSubmit={handleRegister} className="space-y-4">
+          {/* First Name */}
+          <div className="relative">
+            <AiOutlineUser className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="text"
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstname(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">Last Name</label>
-            <input 
-              type="text" 
-              id="lastname" 
-              name="lastname" 
-              placeholder="Enter your last name" 
-              value={lastName} 
-              onChange={(e) => setLastname(e.target.value)} 
+
+          {/* Last Name */}
+          <div className="relative">
+            <AiOutlineUser className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastname(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              placeholder="Enter your email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+
+          {/* Email */}
+          <div className="relative">
+            <AiOutlineMail className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              placeholder="Enter your password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
+
+          {/* Password */}
+          <div className="relative">
+            <AiOutlineLock className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-5">
-            <label htmlFor="password2" className="block text-sm font-medium text-gray-700">Confirm Password</label>
-            <input 
-              type="password" 
-              id="password2" 
-              name="password" 
-              placeholder="Enter your password again" 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
+
+          {/* Confirm Password */}
+          <div className="relative">
+            <AiOutlineLock className="absolute left-3 top-3 text-gray-500" size={20} />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <button 
-            type="submit" 
-            className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+          {/* Register Button */}
+          <button
+            type="submit"
+            className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-all"
           >
             Register
           </button>
-          <br />
-          <div className="mt-4 text-center">
-            <h3 className="text-sm text-gray-600">Already registered?</h3>
-            <Link to="/customerlogin" className="text-blue-500 hover:underline">Login</Link>
+
+          {/* Login Redirect */}
+          <div className="mt-4 text-center text-sm text-gray-600">
+            Already registered?{" "}
+            <Link to="/customerlogin" className="text-blue-500 hover:underline">
+              Login
+            </Link>
           </div>
         </form>
       </div>
