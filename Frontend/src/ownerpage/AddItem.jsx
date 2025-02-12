@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { toast , ToastContainer} from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FiTag, FiDollarSign, FiImage, FiFileText, FiLoader } from 'react-icons/fi';
 
 const AddItem = () => {
   const [product, setProduct] = useState({
@@ -59,9 +60,8 @@ const AddItem = () => {
       setProduct({ name: '', price: '', description: '', imageFile: null });
       e.target.reset();
 
-      const { imageFile } = response.data; 
+      const { imageFile } = response.data;
       console.log('Uploaded image URL:', imageFile);
-
       setProduct((prev) => ({ ...prev, imageFile }));
 
     } catch (error) {
@@ -79,7 +79,9 @@ const AddItem = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Add Product</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Product Name</label>
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <FiTag /> Product Name
+            </label>
             <input
               type="text"
               name="name"
@@ -91,7 +93,9 @@ const AddItem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Price</label>
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <FiDollarSign /> Price
+            </label>
             <input
               type="number"
               name="price"
@@ -103,7 +107,9 @@ const AddItem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Product Image</label>
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <FiImage /> Product Image
+            </label>
             <input
               type="file"
               name="imageFile"
@@ -123,7 +129,7 @@ const AddItem = () => {
             {product.imageFile && typeof product.imageFile === 'string' && (
               <div className="mt-4">
                 <img
-                  src={product.imageFile} 
+                  src={product.imageFile}
                   alt="Uploaded"
                   className="w-48 h-48 object-cover rounded-md"
                 />
@@ -131,7 +137,9 @@ const AddItem = () => {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <FiFileText /> Description
+            </label>
             <textarea
               name="description"
               value={product.description}
@@ -146,9 +154,9 @@ const AddItem = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 px-4 ${loading ? 'bg-gray-400' : 'bg-blue-600'} text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+              className={`w-full py-2 px-4 flex items-center justify-center gap-2 ${loading ? 'bg-gray-400' : 'bg-blue-600'} text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
             >
-              {loading ? 'Adding...' : 'Add Item'}
+              {loading ? <FiLoader className="animate-spin" size={20} /> : 'Add Item'}
             </button>
           </div>
         </form>

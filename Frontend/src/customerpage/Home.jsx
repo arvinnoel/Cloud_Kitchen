@@ -89,6 +89,7 @@ const Home = () => {
 
   return (
     <div>
+      {/* <img src=" /kitchen_home.jpg" alt="Product" className="w-full h-screen object-cover" /> */}
       <h1 className="text-center text-2xl font-bold mb-6 mt-[8px]">Home</h1>
       {loading && <p className="text-center">Loading products...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
@@ -118,7 +119,7 @@ const Home = () => {
                 className="text-green-500 font-bold"
                 onClick={() => addToCart(product)} disabled={loading}
               >{loading ? "Adding to cart" : "Add to Cart"}
-                
+
               </button>
             </div>
           </div>

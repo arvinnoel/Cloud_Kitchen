@@ -47,7 +47,8 @@ const Owner = () => {
   }, []);
 
   return (
-    <div>
+    <div className="h-screen overflow-x-hidden">
+      {/* Navbar */}
       <div className="bg-gray-100 shadow-md fixed top-0 left-0 w-full z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -70,7 +71,7 @@ const Owner = () => {
               <AiOutlineUserAdd size={20} /> <span className="hidden md:inline">Register</span>
             </Link>
 
-            {/* Dropdown - Desktop: Shows 'Options', Mobile: Shows Menu Icon */}
+            {/* Dropdown */}
             <div className="relative dropdown-menu" ref={dropdownRef}>
               {isMobile ? (
                 <button onClick={toggleDropdown} className="p-2 hover:text-blue-500">
@@ -96,7 +97,11 @@ const Owner = () => {
           </div>
         </div>
       </div>
-      <Outlet />
+
+      {/* Main Content */}
+      <div className="pt-[70px] h-full overflow-y-auto">
+        <Outlet />
+      </div>
     </div>
   );
 };

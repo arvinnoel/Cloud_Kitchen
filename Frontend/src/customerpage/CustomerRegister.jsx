@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FiUser, FiMail, FiLock } from 'react-icons/fi';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
-const Register = () => {
-  const [firstName, setFirstname] = useState('');
-  const [lastName, setLastname] = useState('');
+const CustomerRegister = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -22,110 +25,84 @@ const Register = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      const userData = { firstName, lastName, email, password };
-
-      await axios.post(`${apiUrl}/user/register`, userData);
-
-      toast.success('Registered successfully');
-      setTimeout(() => navigate('/customerlogin'), 1500);
+      const userData = { firstName, lastName, email, password, confirmPassword };
+      const response = await axios.post(`${apiUrl}/user/register`, userData);
+      console.log(response.data);
+      toast.success('Registered successfully!');
+      navigate('/customerlogin');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to register');
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message || 'Failed to register');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <ToastContainer />
-
+    <div className="flex justify-center mt-8">
       <div className="w-full max-w-md bg-white p-6 shadow-lg rounded-lg">
-        <h2 className="text-3xl font-semibold mb-5 text-center text-gray-700">Sign Up</h2>
-
-        <form onSubmit={handleRegister} className="space-y-4">
-          {/* First Name */}
-          <div className="relative">
-            <AiOutlineUser className="absolute left-3 top-3 text-gray-500" size={20} />
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstname(e.target.value)}
-              required
-              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">Sign Up</h2>
+        <form onSubmit={handleRegister}>
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
+            <div className="flex items-center border border-gray-300 rounded-md p-2">
+              <FiUser className="text-gray-600 mr-2" />
+              <input type="text" placeholder="Enter your first name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="w-full bg-white text-gray-800 focus:outline-none" />
+            </div>
           </div>
-
-          {/* Last Name */}
-          <div className="relative">
-            <AiOutlineUser className="absolute left-3 top-3 text-gray-500" size={20} />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastname(e.target.value)}
-              required
-              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+            <div className="flex items-center border border-gray-300 rounded-md p-2">
+              <FiUser className="text-gray-600 mr-2" />
+              <input type="text" placeholder="Enter your last name" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="w-full bg-white text-gray-800 focus:outline-none" />
+            </div>
           </div>
-
-          {/* Email */}
-          <div className="relative">
-            <AiOutlineMail className="absolute left-3 top-3 text-gray-500" size={20} />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <div className="flex items-center border border-gray-300 rounded-md p-2">
+              <FiMail className="text-gray-600 mr-2" />
+              <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full bg-white text-gray-800 focus:outline-none" />
+            </div>
           </div>
-
-          {/* Password */}
-          <div className="relative">
-            <AiOutlineLock className="absolute left-3 top-3 text-gray-500" size={20} />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <div className="flex items-center border border-gray-300 rounded-md p-2">
+              <FiLock className="text-gray-600 mr-2" />
+              <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full bg-white text-gray-800 focus:outline-none" />
+            </div>
           </div>
-
-          {/* Confirm Password */}
-          <div className="relative">
-            <AiOutlineLock className="absolute left-3 top-3 text-gray-500" size={20} />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="pl-10 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <div className="flex items-center border border-gray-300 rounded-md p-2">
+              <FiLock className="text-gray-600 mr-2" />
+              <input type="password" placeholder="Confirm your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="w-full bg-white text-gray-800 focus:outline-none" />
+            </div>
           </div>
-
-          {/* Register Button */}
-          <button
-            type="submit"
-            className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-all"
-          >
-            Register
+          <button type="submit" disabled={loading} className={`w-full py-2 text-white font-semibold rounded-md focus:outline-none focus:ring-2 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}>
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <AiOutlineLoading3Quarters className="animate-spin text-white mr-2" />
+                Registering...
+              </div>
+            ) : (
+              'Register'
+            )}
           </button>
-
-          {/* Login Redirect */}
-          <div className="mt-4 text-center text-sm text-gray-600">
-            Already registered?{" "}
-            <Link to="/customerlogin" className="text-blue-500 hover:underline">
-              Login
-            </Link>
+          <div className="mt-4 text-center">
+            <h3 className="text-sm text-gray-600">Already registered?</h3>
+            <Link to="/customerlogin" className="text-blue-500 hover:underline">Login</Link>
           </div>
         </form>
       </div>
+      <Outlet />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
 
-export default Register;
+export default CustomerRegister;
