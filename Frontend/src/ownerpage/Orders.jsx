@@ -22,7 +22,7 @@ const Orders = () => {
     rejected: [],
   };
 
-  const allStatuses = ["pending", "accepted", "preparing", "out_for_delivery", "delivered"];
+  const allStatuses = ["pending", "accepted", "rejected", "preparing", "out_for_delivery", "delivered"];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -77,7 +77,23 @@ const Orders = () => {
         return;
       }
 
-      const response = await axios.put(`${apiUrl}/owner/updateorderstatus`, { orderId: String(orderId), status: newStatus },
+      // Check if the new status is valid for the current status of the order
+      const order = orders.find((order) => order.orderId === orderId);
+      if (!order) {
+        toast.error("Order not found.");
+        return;
+      }
+
+      const validStatusesForCurrentOrder = validTransitions[order.status];
+
+      if (!validStatusesForCurrentOrder.includes(newStatus)) {
+        toast.error(`Invalid status transition from ${order.status} to ${newStatus}.`);
+        return;
+      }
+
+      const response = await axios.put(
+        `${apiUrl}/owner/updateorderstatus`,
+        { orderId: String(orderId), status: newStatus },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -117,21 +133,39 @@ const Orders = () => {
         <div className="space-y-6">
           {orders.length > 0 ? (
             orders.map((order) => (
-              <div key={order.orderId} className="border p-6 rounded-xl shadow-lg bg-white transition-transform transform hover:scale-105">
-                <h3 className="text-2xl font-semibold text-gray-700">Order ID: {order.orderId}</h3>
-                <p className="text-gray-600 mt-2">Total Amount: <span className="font-bold">₹{order.totalAmount}</span></p>
-                <p className="text-gray-600">Order Date: <span className="font-bold">{new Date(order.orderDate).toLocaleString()}</span></p>
+              <div
+                key={order.orderId}
+                className="border p-6 rounded-xl shadow-lg bg-white transition-transform transform hover:scale-105"
+              >
+                <h3 className="text-1xl font-semibold text-gray-700">Order ID: {order.orderId}</h3>
+                <p className="text-gray-600 mt-2">
+                  Total Amount: <span className="font-bold">₹{order.totalAmount}</span>
+                </p>
+                <p className="text-gray-600">
+                  Order Date: <span className="font-bold">{new Date(order.orderDate).toLocaleString()}</span>
+                </p>
+
+                {/* Check if the order has address data */}
+                {order.address && order.address.length > 0 ? (
+                  <div className="mt-2">
+                    <h4 className="text-lg font-semibold text-gray-700">Customer Address:</h4>
+                    {order.address.map((addressLine, index) => (
+                      <p key={index} className="text-gray-600">{addressLine}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600 mt-2">Address: Not provided</p>
+                )}
 
                 <p className="mt-2 text-lg">
                   Status:{" "}
                   <span
-                    className={`px-3 py-1 rounded-lg font-semibold ${
-                      order.status === "accepted"
-                        ? "bg-green-200 text-green-800"
-                        : order.status === "canceled"
+                    className={`px-3 py-1 rounded-lg font-semibold ${order.status === "accepted"
+                      ? "bg-green-200 text-green-800"
+                      : order.status === "canceled"
                         ? "bg-red-200 text-red-800"
                         : "bg-yellow-200 text-yellow-800"
-                    }`}
+                      }`}
                   >
                     {order.status}
                   </span>

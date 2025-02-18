@@ -305,8 +305,8 @@ const placeOrder = async (req, res) => {
         totalAmount: price * quantity,
         orderDate,
         status: "pending",
-        address, 
-        paymentMode, 
+        address,
+        paymentMode,
       };
 
       const owner = await Owner.findById(product.ownerId);
@@ -330,8 +330,8 @@ const placeOrder = async (req, res) => {
       totalPrice: totalAmount,
       orderDate,
       status: "pending",
-      address, 
-      paymentMode, 
+      address,
+      paymentMode,
     });
 
     user.tasks.cart = [];
@@ -348,7 +348,7 @@ const placeOrder = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user?._id; 
+    const userId = req.user?._id;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized access" });

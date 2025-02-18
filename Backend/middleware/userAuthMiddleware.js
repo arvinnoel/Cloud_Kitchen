@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user_model'); // Assuming the User model is correctly imported
-
+const User = require('../models/user_model'); 
 const userAuthMiddleware = async (req, res, next) => {
   try {
     // Bypass authentication for the getAllProducts route
