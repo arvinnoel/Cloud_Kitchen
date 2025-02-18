@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { toast,ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +11,18 @@ const Orders = () => {
   const [kitchenName, setKitchenName] = useState("");
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const validTransitions = {
+    pending: ["accepted", "canceled", "rejected"],
+    accepted: ["preparing"],
+    preparing: ["out_for_delivery", "canceled"],
+    out_for_delivery: ["delivered", "canceled"],
+    delivered: [],
+    canceled: [],
+    rejected: [],
+  };
+
+  const allStatuses = ["pending", "accepted", "preparing", "out_for_delivery", "delivered"];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -34,16 +46,7 @@ const Orders = () => {
           setError("No orders found.");
           setOrders([]);
         } else {
-          // Group orders by orderId
-          const groupedOrders = response.data.orders.reduce((acc, order) => {
-            if (!acc[order.orderId]) {
-              acc[order.orderId] = { ...order, items: [] };
-            }
-            acc[order.orderId].items.push(...order.items);
-            return acc;
-          }, {});
-
-          setOrders(Object.values(groupedOrders).sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)));
+          setOrders(response.data.orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)));
         }
 
         setKitchenName(response.data.kitchenName || "No Kitchen Name");
@@ -66,8 +69,7 @@ const Orders = () => {
     fetchOrders();
   }, [navigate, apiUrl]);
 
-  const handleOrderStatusUpdate = async (orderId, status) => {
-    console.log("Updating Order:", { orderId, status });
+  const handleOrderStatusUpdate = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem("authToken")?.trim();
       if (!token) {
@@ -75,9 +77,7 @@ const Orders = () => {
         return;
       }
 
-      const response = await axios.put(
-        `${apiUrl}/owner/updateorderstatus`,
-        { orderId: String(orderId), status: status },
+      const response = await axios.put(`${apiUrl}/owner/updateorderstatus`, { orderId: String(orderId), status: newStatus },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,87 +87,78 @@ const Orders = () => {
       );
 
       if (response.status === 200) {
-        console.log("Order Updated Successfully:", response.data);
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order.orderId === orderId ? { ...order, status } : order
+            order.orderId === orderId ? { ...order, status: newStatus } : order
           )
         );
-
-        // Display correct status message
-        toast.success(`Order ${status} successfully`);
+        toast.success(`Order status updated to '${newStatus}'`);
       } else {
         toast.error("Failed to update order status. Please try again.");
       }
     } catch (error) {
-      console.error("Error updating order status:", error);
       toast.error(`Error updating order status: ${error.response?.data?.message || error.message}`);
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-semibold mb-6">Orders for {kitchenName}</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">
+        Orders for <span className="text-blue-500">{kitchenName}</span>
+      </h1>
 
       {loading ? (
-        <div className="text-center">Loading...</div>
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+        </div>
       ) : error ? (
-        <div className="text-red-500 text-center">{error}</div>
+        <div className="text-red-500 text-center text-lg">{error}</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {orders.length > 0 ? (
             orders.map((order) => (
-              <div key={order.orderId} className="border p-4 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold">Order ID: {order.orderId}</h3>
-                <p className="text-gray-500">Total Amount: ₹{order.totalAmount}</p>
-                <p className="text-gray-500">
-                  Order Date: {new Date(order.orderDate).toLocaleString()}
-                </p>
-                <p className="text-gray-500">
+              <div key={order.orderId} className="border p-6 rounded-xl shadow-lg bg-white transition-transform transform hover:scale-105">
+                <h3 className="text-2xl font-semibold text-gray-700">Order ID: {order.orderId}</h3>
+                <p className="text-gray-600 mt-2">Total Amount: <span className="font-bold">₹{order.totalAmount}</span></p>
+                <p className="text-gray-600">Order Date: <span className="font-bold">{new Date(order.orderDate).toLocaleString()}</span></p>
+
+                <p className="mt-2 text-lg">
                   Status:{" "}
                   <span
-                    className={`font-semibold ${order.status === "accepted" ? "text-green-600" : order.status === "canceled" ? "text-red-600" : "text-yellow-600"
-                      }`}
+                    className={`px-3 py-1 rounded-lg font-semibold ${
+                      order.status === "accepted"
+                        ? "bg-green-200 text-green-800"
+                        : order.status === "canceled"
+                        ? "bg-red-200 text-red-800"
+                        : "bg-yellow-200 text-yellow-800"
+                    }`}
                   >
                     {order.status}
                   </span>
                 </p>
 
-                {order.items.length > 0 && (
-                  <div className="mt-4">
-                    <h4 className="font-semibold">Items:</h4>
-                    <ul className="space-y-2">
-                      {order.items.map((item, index) => (
-                        <li key={index} className="flex justify-between">
-                          <span>{item.name}</span>
-                          <span>Qty: {item.quantity}</span>
-                          <span>₹{item.price * item.quantity}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="mt-4 flex justify-between">
-                  <button
-                    className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                    onClick={() => handleOrderStatusUpdate(order.orderId, "accepted")}
-                    disabled={order.status === "accepted" || order.status === "canceled"}
+                <div className="mt-4">
+                  <label className="block text-gray-600 mb-2">Update Status:</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-lg shadow-md"
+                    value={order.status}
+                    onChange={(e) => handleOrderStatusUpdate(order.orderId, e.target.value)}
                   >
-                    Accept
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                    onClick={() => handleOrderStatusUpdate(order.orderId, "canceled")}
-                    disabled={order.status === "accepted" || order.status === "canceled"}
-                  >
-                    Cancel
-                  </button>
+                    {allStatuses.map((statusOption) => (
+                      <option
+                        key={statusOption}
+                        value={statusOption}
+                        disabled={!validTransitions[order.status].includes(statusOption)}
+                      >
+                        {statusOption.replace(/_/g, " ")}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center text-gray-500">No orders available</div>
+            <div className="text-center text-gray-500 text-lg">No orders available</div>
           )}
         </div>
       )}

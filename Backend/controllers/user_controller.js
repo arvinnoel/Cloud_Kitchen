@@ -136,6 +136,46 @@ const addItemToCart = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const updateCartItemQuantity = async (req, res) => {
+  const { productId, action } = req.body; // action can be 'increment' or 'decrement'
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token is required" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const productInCart = user.tasks.cart.find(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (!productInCart) {
+      return res.status(404).json({ message: "Product not found in cart" });
+    }
+
+    if (action === "increment") {
+      productInCart.quantity += 1;
+    } else if (action === "decrement") {
+      if (productInCart.quantity > 1) {
+        productInCart.quantity -= 1;
+      } else {
+        return res.status(400).json({ message: "Quantity cannot be less than 1" });
+      }
+    }
+
+    await user.save();
+    res.status(200).json({ message: "Cart updated", cart: user.tasks.cart });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 const removeItemFromCart = async (req, res) => {
   const { productId } = req.body;
@@ -217,23 +257,32 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    const orderId = new mongoose.Types.ObjectId().toString();
+    const { address, paymentMode = "COD" } = req.body;
+    if (
+      !address ||
+      !address.fullName ||
+      !address.street ||
+      !address.city ||
+      !address.state ||
+      !address.postalCode ||
+      !address.country ||
+      !address.phone
+    ) {
+      return res.status(400).json({ message: "Please provide a complete address." });
+    }
 
+    const orderId = new mongoose.Types.ObjectId().toString();
     const orderDate = new Date();
 
-    // Create an array of order details to store in User's orderHistory
     const orderItems = [];
 
-    // Iterate over cart items to group them by kitchen (owner)
     for (const item of user.tasks.cart) {
       const { productId, quantity, imageFile, price, kitchenName, name } = item;
 
-      // Fetch product details and its associated owner
       const product = await Product.findById(productId).populate("ownerId");
 
       if (!product) continue;
 
-      // Add product details to order items for user
       orderItems.push({
         productId,
         quantity,
@@ -242,7 +291,6 @@ const placeOrder = async (req, res) => {
         name,
       });
 
-      // Create order details for the particular owner
       const orderDetails = {
         orderId,
         items: [
@@ -256,14 +304,16 @@ const placeOrder = async (req, res) => {
         ],
         totalAmount: price * quantity,
         orderDate,
-        status: "pending", 
+        status: "pending",
+        address, 
+        paymentMode, 
       };
 
       const owner = await Owner.findById(product.ownerId);
 
       if (owner) {
         owner.orders.push(orderDetails);
-        await owner.save(); 
+        await owner.save();
       } else {
         console.error(`Owner not found for product: ${productId}`);
       }
@@ -273,18 +323,19 @@ const placeOrder = async (req, res) => {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
+
     user.tasks.orderHistory.push({
       orderId,
       items: orderItems,
       totalPrice: totalAmount,
-      orderDate, 
-      status: "pending", 
+      orderDate,
+      status: "pending",
+      address, 
+      paymentMode, 
     });
 
     user.tasks.cart = [];
-
     await user.save();
-
     res.status(201).json({
       message: "Order placed successfully",
       orderHistory: user.tasks.orderHistory,
@@ -324,7 +375,23 @@ const getUserOrders = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
 
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 module.exports = {
   registerUser,
   loginUser,
@@ -333,4 +400,6 @@ module.exports = {
   getCartItems,
   placeOrder,
   getUserOrders,
+  getAllProducts,
+  updateCartItemQuantity
 };

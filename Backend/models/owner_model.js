@@ -15,12 +15,29 @@ const OrderSchema = new mongoose.Schema(
     orderId: String,
     items: Array,
     totalAmount: Number,
-    orderDate: Date,
+    orderDate: {
+      type: Date,
+      default: Date.now, // Automatically set order date
+    },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'canceled'],
+      enum: ['pending', 'accepted', 'out_for_delivery', 'delivered', 'rejected', 'canceled', 'preparing'],
       default: "pending",
     },
+    address: {
+      fullName: String,
+      street: String,
+      city: String,
+      state: String,
+      postalCode: String,
+      country: String,
+      phone: String
+    },
+    paymentMode: {
+      type: String,
+      enum: ['COD', 'UPI'],
+      default: 'COD', // Default to "COD"
+    }
   },
   { timestamps: true }
 );
@@ -47,7 +64,7 @@ const OwnerSchema = new mongoose.Schema(
     },
 
     products: [ProductSchema],
-    orders: [OrderSchema],
+    orders: [OrderSchema], // Orders now include paymentMode and address
   },
   { timestamps: true }
 );

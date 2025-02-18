@@ -29,7 +29,7 @@ const OwnerLogin = () => {
 
       localStorage.setItem('authToken', token);
       toast.success('Logged in successfully!');
-
+      console.log(token)
       setTimeout(() => {
         navigate('/owner/additem');
       }, 1000);

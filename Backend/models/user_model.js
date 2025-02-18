@@ -15,7 +15,7 @@ const CartItemSchema = new mongoose.Schema(
     kitchenName: String,
     name: String,
   },
-  { timestamps: true } // Add timestamps for cart items
+  { timestamps: true }
 );
 
 // Define the Wishlist Item Schema
@@ -28,10 +28,10 @@ const WishlistItemSchema = new mongoose.Schema(
       default: "added",
     },
   },
-  { timestamps: true } // Add timestamps for wishlist items
+  { timestamps: true }
 );
 
-// Define the Order History Schema (Updated to include status tracking)
+// Define the Order History Schema (Updated with "Out for Delivery" and "Delivered" statuses)
 const OrderHistorySchema = new mongoose.Schema(
   {
     orderId: String,
@@ -39,25 +39,38 @@ const OrderHistorySchema = new mongoose.Schema(
       {
         productId: String,
         quantity: Number,
-        imageFile: String, // Added image
-        price: Number, // Added price
-        name: String, // Added name
+        imageFile: String,
+        price: Number,
+        name: String,
       },
     ],
     totalPrice: Number,
     orderDate: {
       type: Date,
-      default: Date.now, // Automatically set order date
+      default: Date.now,
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'canceled'],
+      enum: ["pending", "accepted", "out_for_delivery", "delivered", "rejected", "canceled", "preparing"],
       default: "pending",
-    }    
+    },
+    address: {
+      fullName: String,
+      street: String,
+      city: String,
+      state: String,
+      postalCode: String,
+      country: String,
+      phone: String,
+    },
+    paymentMode: {
+      type: String,
+      enum: ["COD", "UPI"],
+      default: "COD",  
+    },
   },
-  { timestamps: true } // Add timestamps for order history
+  { timestamps: true }
 );
-
 // Define the User Schema
 const userSchema = new mongoose.Schema(
   {
@@ -80,12 +93,12 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
     },
     tasks: {
-      cart: [CartItemSchema], // Use CartItemSchema for cart
-      wishlist: [WishlistItemSchema], // Use WishlistItemSchema for wishlist
-      orderHistory: [OrderHistorySchema], // Use updated OrderHistorySchema
+      cart: [CartItemSchema],
+      wishlist: [WishlistItemSchema],
+      orderHistory: [OrderHistorySchema],
     },
   },
-  { timestamps: true } // Add timestamps for the User document itself
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);

@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const RunServer = require('./database/connection');
-const signupRouter = require('./routes/user_routes');
+const userRouter = require('./routes/user_routes');
 const OwnersignupRouter = require('./routes/owner_routes');
 const AdminRouter = require('./routes/admin_routes');
 const productRouter = require('./routes/owner_additem_routes');
@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Routes
-app.use('/user', signupRouter);          
+app.use('/user', userRouter);          
 app.use('/owner', OwnersignupRouter);   
 app.use('/admin', AdminRouter);          
 

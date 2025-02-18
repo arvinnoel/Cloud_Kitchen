@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  AiOutlineShoppingCart,
-  AiOutlineLogin,
-  AiOutlineUserAdd,
-  AiOutlineMenu,
-  AiOutlineClose,
-} from "react-icons/ai";
+import { ShoppingBag, LogIn, UserPlus, Menu, X, } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
 const Owner = () => {
@@ -62,20 +56,19 @@ const Owner = () => {
 
           <div className="flex items-center gap-2 md:gap-6">
             <Link to="orders" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineShoppingCart size={20} /> <span className="hidden md:inline">Orders</span>
+              <ShoppingBag size={20} /> <span className="hidden md:inline">Orders</span>
             </Link>
             <Link to="login" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineLogin size={20} /> <span className="hidden md:inline">Login</span>
+              <LogIn size={20} /> <span className="hidden md:inline">Login</span>
             </Link>
-            <Link to="register" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineUserAdd size={20} /> <span className="hidden md:inline">Register</span>
-            </Link>
+            {/* <Link to="register" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
+              <UserPlus size={20} /> <span className="hidden md:inline">Register</span>
+            </Link> */}
 
-            {/* Dropdown */}
             <div className="relative dropdown-menu" ref={dropdownRef}>
               {isMobile ? (
                 <button onClick={toggleDropdown} className="p-2 hover:text-blue-500">
-                  {isDropdownOpen ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
+                  {isDropdownOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               ) : (
                 <button onClick={toggleDropdown} className="bg-gray-200 px-3 py-1 rounded-md text-gray-800 font-semibold hover:bg-gray-300">

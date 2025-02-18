@@ -67,24 +67,6 @@ const addProduct = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-// Get All Products
-const getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
-
-    if (!products || products.length === 0) {
-      return res.status(404).json({ message: "No products found" });
-    }
-
-    res.status(200).json({
-      message: "Products fetched successfully",
-      products,
-    });
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
 
 const getOwnerProducts = async (req, res) => {
   try {
@@ -189,57 +171,77 @@ const getOwnerOrders = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 const updateOrderStatus = async (req, res) => {
   const { orderId, status } = req.body;
-  console.log("Received Order Update Request:", req.body); // Debugging log
+  console.log("Received Order Update Request:", req.body);
 
   try {
     // Fetch the owner who is updating the order
     const ownerId = req.owner?._id;
-    console.log("Owner ID:", ownerId); // Debugging log
+    console.log("Owner ID:", ownerId);
+    
     if (!ownerId) {
       return res.status(401).json({ message: "Unauthorized request" });
     }
 
     const owner = await Owner.findById(ownerId);
     if (!owner) {
-      console.log("Owner not found in DB"); // Debugging log
+      console.log("Owner not found in DB");
       return res.status(404).json({ message: "Owner not found" });
     }
 
-    // Ensure orderId is compared correctly (convert to string)
     const orderIndex = owner.orders.findIndex(order => order.orderId.toString() === orderId);
-    console.log("Order Index Found:", orderIndex); // Debugging log
+    console.log("Order Index Found:", orderIndex);
 
     if (orderIndex === -1) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Update the order status in the owner's orders
+    const currentStatus = owner.orders[orderIndex].status;
+
+    const validTransitions = {
+      pending: ["accepted", "canceled", "rejected"],  
+      accepted: ["preparing"],  
+      preparing: ["out_for_delivery", "canceled"],  
+      out_for_delivery: ["delivered", "canceled"],  
+      delivered: [],  
+      canceled: [],  
+      rejected: []  
+    };
+    
+    // Check if the transition is valid
+    if (!validTransitions[currentStatus].includes(status)) {
+      return res.status(400).json({
+        message: `Invalid status transition from '${currentStatus}' to '${status}'.`
+      });
+    }
+
+    // ✅ Update the order status in the owner's orders
     owner.orders[orderIndex].status = status;
     await owner.save();
 
-    // Update the order status in the user's order history
+    // ✅ Update the order status in the user's order history
     const user = await User.findOne({ "tasks.orderHistory.orderId": orderId });
     if (user) {
       const userOrderIndex = user.tasks.orderHistory.findIndex(order => order.orderId.toString() === orderId);
       if (userOrderIndex !== -1) {
         user.tasks.orderHistory[userOrderIndex].status = status;
         await user.save();
+      } else {
+        console.log("Order not found in user's history");
       }
     }
-    // res.status(200).json({ message: `Order ${status === "success" ? "accepted" : "rejected"} successfully` });
-    res.status(200).json({ message: `Order ${status} successfully` });
+
+    res.status(200).json({ message: `Order status updated to '${status}' successfully.` });
   } catch (error) {
     console.error("Error updating order status:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
+
 module.exports = {
   addProduct,
-  getAllProducts,
   getOwnerProducts,
   deleteProduct,
   getOwnerOrders,

@@ -16,21 +16,25 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const response = await axios.post(`${apiUrl}/user/login`, { email, password });
-
+  
       if (response.status >= 200 && response.status < 300) {
         const token = response.data?.data?.token;
-
+  
         if (!token) {
           toast.error("Invalid User");
           setLoading(false);
           return;
         }
-
+  
+        // Store token in localStorage
         localStorage.setItem("userauthToken", token);
+        console.log(token);
+  
         toast.success("Logged in successfully!");
+  
         setTimeout(() => {
           navigate("/");
         }, 1000);
@@ -39,8 +43,15 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
-
-      if (error.response?.data?.message) {
+  
+      // Handle authentication failures
+      if (error.response?.status === 401) {
+        // localStorage.removeItem("userauthToken"); 
+        toast.error("Invalid email or password. Please try again.");
+      } else if (error.response?.status === 403) {
+        // localStorage.removeItem("userauthToken");
+        toast.error("Access forbidden. Please check your credentials.");
+      } else if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
         toast.error("An unexpected error occurred. Please try again.");

@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AiOutlineShoppingCart, AiOutlineLogin, AiOutlineShopping, AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { ShoppingCart, LogIn, ShoppingBag, Menu, X } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
+import { useCart } from "./CartContext";
 
-const Customer = () => {
+const CustomerNavbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const { cartCount, fetchCartCount } = useCart();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -23,23 +25,20 @@ const Customer = () => {
   };
 
   useEffect(() => {
+    fetchCartCount();
+  }, []);
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   return (
     <div>
       <div className="bg-gray-100 shadow-md fixed top-0 left-0 w-full z-50">
@@ -48,30 +47,38 @@ const Customer = () => {
             Home
           </Link>
           <div className="flex items-center gap-2 md:gap-6">
-            <Link to="cart" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineShoppingCart size={20} /> <span className="hidden md:inline">Cart</span>
-            </Link>
-            <Link to="myorders" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineShopping size={20} /> <span className="hidden md:inline">Orders</span>
-            </Link>
-            <Link to="customerlogin" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-colors duration-200">
-              <AiOutlineLogin size={20} /> <span className="hidden md:inline">Login</span>
+            {/* Cart Icon with Badge */}
+            <Link to="cart" className="relative flex items-center gap-2 hover:text-blue-500 transition-transform duration-200 hover:scale-110">
+              <ShoppingCart size={24} />
+              <span className="hidden md:inline">Cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
-            {/* Dropdown - Desktop: Shows 'Options', Mobile: Shows Menu Icon */}
+            <Link to="myorders" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-transform transform hover:scale-110">
+              <ShoppingBag size={20} /> <span className="hidden md:inline">Orders</span>
+            </Link>
+            <Link to="customerlogin" className="flex items-center gap-1 md:gap-2 hover:text-blue-500 transition-transform transform hover:scale-110">
+              <LogIn size={20} /> <span className="hidden md:inline">Login</span>
+            </Link>
+
+            {/* Dropdown - Mobile or Desktop */}
             <div className="relative dropdown-menu" ref={dropdownRef}>
               {isMobile ? (
-                <button onClick={toggleDropdown} className="p-2 hover:text-blue-500">
-                  {isDropdownOpen ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
+                <button onClick={toggleDropdown} className="p-2 hover:text-blue-500 transition-transform transform hover:rotate-90">
+                  {isDropdownOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               ) : (
-                <button onClick={toggleDropdown} className="bg-gray-200 px-3 py-1 rounded-md text-gray-800 font-semibold hover:bg-gray-300">
+                <button onClick={toggleDropdown} className="bg-gray-200 px-3 py-1 rounded-md text-gray-800 font-semibold hover:bg-gray-300 transition-all">
                   Options
                 </button>
               )}
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-2 z-10">
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-2 z-10 transition-opacity duration-300">
                   <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-500">
                     Logout
                   </button>
@@ -85,7 +92,6 @@ const Customer = () => {
         </div>
       </div>
 
-      {/* Page Content - Add padding to prevent content from being hidden behind the fixed navbar */}
       <div className="pt-16">
         <Outlet />
       </div>
@@ -93,4 +99,4 @@ const Customer = () => {
   );
 };
 
-export default Customer;
+export default CustomerNavbar;

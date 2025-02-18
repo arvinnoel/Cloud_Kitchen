@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import '../ownerpage/MyKitchen.css'
 const MyKitchen = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
@@ -79,6 +79,9 @@ const MyKitchen = () => {
 
   return (
     <div>
+      <div className="image-container">
+        <img src="/homechef.jpg" alt="Kitchen Home" className="image" />
+      </div>
       <h1 className="text-center text-2xl font-bold mb-6 mt-[20px]">{kitchenName}</h1>
       {error && <p className="text-red-500 text-center">{error}</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">

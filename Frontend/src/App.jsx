@@ -17,6 +17,7 @@ import Activities from "./adminpage/Activities"
 import KitchenOwners from "./adminpage/KitchenOwners"
 import AdminLogin from "./adminpage/AdminLogin"
 import MyKitchen from "./ownerpage/MyKitchen"
+import './App.css'
 const App = () => {
   return (
     <div>
@@ -30,7 +31,7 @@ const App = () => {
           <Route path="myorders" element={<MyOrders />} />
         </Route>
         <Route path="/owner" element={<Owner />} >
-        <Route index element={<OwnerRegister />} />
+          <Route index element={<OwnerRegister />} />
           <Route path="register" element={<OwnerRegister />} />
           <Route path="login" element={<OwnerLogin />} />
           <Route path="kitchen" element={<MyKitchen />} />
@@ -38,10 +39,10 @@ const App = () => {
           <Route path="additem" element={<AddItem />} />
         </Route>
         <Route path="/adminpage" element={<Admin />}>
-        <Route index element={<AdminLogin />} />
-         <Route path="kitchenowners" element={<KitchenOwners />} />
-         <Route path="activities" element={<Activities />} />
-         
+          <Route index element={<AdminLogin />} />
+          <Route path="kitchenowners" element={<KitchenOwners />} />
+          <Route path="activities" element={<Activities />} />
+
         </Route>
       </Routes>
 
