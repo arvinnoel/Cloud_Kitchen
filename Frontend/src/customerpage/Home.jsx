@@ -79,7 +79,7 @@ const Home = () => {
     try {
       // Include ownerId in the request body
       const response = await axios.post(
-        `http://localhost:5000/user/addtocart`,
+        `${apiUrl}/user/addtocart`,
         { productId: product._id, ownerId: product.ownerId }, // Add ownerId to the request
         {
           headers: {
